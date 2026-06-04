@@ -3299,8 +3299,10 @@ class Sample_Generic(CoordinateSystem):
             # for index in range(int(total_time/moving_interval)):
                 # yield from bps.mov(smx, smx.position+0.1*index)
                 # yeild from sleep(1)
+            yield from bps.create(name="primary")
             for detector in detectors:
                 yield from bps.read(detector)
+            yield from bps.save()
 
 
         yield from bpp.run_wrapper(
@@ -5366,5 +5368,4 @@ def handlefiles_names():
 
 
 # sam = Sample_Generic("test")
-
 
