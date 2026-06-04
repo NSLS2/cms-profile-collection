@@ -192,7 +192,14 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
             if hasattr(cpt, "ensure_nonblocking"):
                 cpt.ensure_nonblocking()
 
-class PilatusV33(SingleTriggerV33, PilatusDetector):
+class CMSPilatusDetector(PilatusDetector):
+    def make_data_key(self):
+        ret = super().make_data_key()
+        ret["dtype_numpy"] = "<i4"
+        return ret
+
+
+class PilatusV33(SingleTriggerV33, CMSPilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
     stats1 = Cpt(StatsPluginV33, "Stats1:")
@@ -229,7 +236,7 @@ class PilatusV33(SingleTriggerV33, PilatusDetector):
     def setExposureNumber(self, exposure_number, verbosity=3):
         yield from mv(self.cam.num_images, exposure_number)
 
-class Pilatus800V33(SingleTriggerV33, PilatusDetector):
+class Pilatus800V33(SingleTriggerV33, CMSPilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
     stats1 = Cpt(StatsPluginV33, "Stats1:")
@@ -290,7 +297,7 @@ class Pilatus8002V33(PilatusV33):
         return super().stage(*args, **kwargs)
 
 
-class Pilatus2MV33(SingleTriggerV33, PilatusDetector):#, h5=False):
+class Pilatus2MV33(SingleTriggerV33, CMSPilatusDetector):#, h5=False):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
     stats1 = Cpt(StatsPluginV33, "Stats1:")
@@ -381,7 +388,7 @@ class Pilatus2MV33(SingleTriggerV33, PilatusDetector):#, h5=False):
     def setExposureNumber(self, exposure_number, verbosity=3):
         yield from mv(self.cam.num_images, exposure_number)
 
-class PilatusV33_h5(SingleTriggerV33, PilatusDetector):
+class PilatusV33_h5(SingleTriggerV33, CMSPilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
     stats1 = Cpt(StatsPluginV33, "Stats1:")
@@ -444,7 +451,7 @@ class PilatusV33_h5(SingleTriggerV33, PilatusDetector):
             raise error
         return super().stage(*args, **kwargs)
 
-class Pilatus800V33_h5(SingleTriggerV33, PilatusDetector):
+class Pilatus800V33_h5(SingleTriggerV33, CMSPilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
     stats1 = Cpt(StatsPluginV33, "Stats1:")
