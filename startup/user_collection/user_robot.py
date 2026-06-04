@@ -890,6 +890,10 @@ class Sample(SampleGISAXS):
             yield from bps.mv(TTL2, 1) #TLL on
 
             yield from bps.wait(group='det')
+            yield from bps.create(name="primary")
+            for detector in detectors:
+                yield from bps.read(detector)
+            yield from bps.save()
 
             #total_time = num_frames*exposure_period
             #moving_interval = 1
@@ -1017,6 +1021,10 @@ class Sample(SampleGISAXS):
             yield from bps.mv(TTL2, 1) #TLL on
 
             yield from bps.wait(group='det')
+            yield from bps.create(name="primary")
+            for detector in detectors:
+                yield from bps.read(detector)
+            yield from bps.save()
 
             #total_time = num_frames*exposure_period
             #moving_interval = 1
@@ -1400,7 +1408,7 @@ class Sample(SampleGISAXS):
                 status = yield from bps.trigger(detector, group='det')
 
             # status = yield from bps.trigger(pilatus2M, group='det')
-            yield from bps.create(name='detector')
+            yield from bps.create(name='primary')
 
             yield from bps.sleep(1)
             for index, period in enumerate(periods):
