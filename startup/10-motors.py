@@ -476,6 +476,17 @@ bsphi = EpicsMotor("XF:11BMB-ES{BS-Ax:Phi}Mtr", name="bsphi")
 # bsy = EpicsMotor("XF:11BMB-ES{Spare:L-Ax:L}Mtr", name="bsy")
 # bsphi = EpicsMotor("XF:11BMB-ES{Spare:L-Ax:M}Mtr", name="bsphi")
 
+
+# beamstop in SmarAct MCS2 controller --- MCS11 --01/18/24
+MAXSbsx = EpicsMotor("XF:11BMB-ES{Spare:1-Ax:7}Mtr", name="MAXSbsx")
+MAXSbsy = EpicsMotor("XF:11BMB-ES{Spare:1-Ax:8}Mtr", name="MAXSbsy")
+
+
+def wMAXSbs():
+    print(f"MAXSbsx = {MAXSbsx.position:.2f} mm")
+    print(f"MAXSbsy = {MAXSbsy.position:.2f} mm")
+
+
 ##stage for vacuum gate
 gatex = EpicsMotor("XF:11BMB-ES{Chm:Gate-Ax:X}Mtr", name="gatex")
 
