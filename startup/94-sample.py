@@ -132,7 +132,10 @@ def with_tiling(tiling_mode=None):
             has_runtime_tiling = "tiling" in kwargs
             runtime_tiling = kwargs.pop("tiling", None)
             # Treat falsy runtime values (None, False) as "no tiling override"
-            effective_tiling = (runtime_tiling if runtime_tiling else None) if has_runtime_tiling else tiling_mode
+            if has_runtime_tiling:
+                effective_tiling = runtime_tiling if runtime_tiling else None
+            else:
+                effective_tiling = tiling_mode
 
             if effective_tiling is None:
                 return _call_func(args, kwargs)
