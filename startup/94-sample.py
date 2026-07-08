@@ -3626,6 +3626,7 @@ class Sample_Generic(CoordinateSystem):
             print("{:d} of {:d} is done".format(spot_num + 1, num_spots))
             print(time.time() - start_time)
 
+    @with_tiling()
     def measureSpots(
         self,
         num_spots=4,
@@ -3634,7 +3635,6 @@ class Sample_Generic(CoordinateSystem):
         exposure_time=None,
         extra=None,
         measure_type="measureSpots",
-        tiling=None,
         **md,
     ):
         """Measure multiple spots on the sample."""
@@ -3643,7 +3643,8 @@ class Sample_Generic(CoordinateSystem):
             self.md["spot_number"] = 1
 
         for spot_num in range(num_spots):
-            self.measure(exposure_time=exposure_time, extra=extra, measure_type=measure_type, tiling=tiling, **md)
+            # self.measure(exposure_time=exposure_time, extra=extra, measure_type=measure_type, **md)
+            self.measure(exposure_time=exposure_time, extra=extra, measure_type=measure_type, **md)
 
             getattr(self, axis + "r")(translation_amount)
             self.md["spot_number"] += 1
