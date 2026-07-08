@@ -1925,6 +1925,15 @@ class Sample_Generic(CoordinateSystem):
 
         return savename
 
+    def build_measurement_filename(self, savename):
+        """Build the canonical run filename from one source of truth."""
+        return "{:s}_{:06d}".format(savename, RE.md["scan_id"])
+
+    def _print_clickable_path(self, label, path):
+        normalized_path = os.path.normpath(str(path))
+        path_uri = "file://{}".format(normalized_path)
+        print("  {}: {}".format(label, path_uri))
+
     # Logging methods
     ########################################
 
@@ -2324,7 +2333,8 @@ class Sample_Generic(CoordinateSystem):
             for detector in get_beamline().detector:
                 self.md["exposure_time"] = detector.cam.acquire_time.get()
                 md["exposure_time"] = detector.cam.acquire_time.get()
-                md["filename"] = self.get_savename()
+                if "filename" not in md or not md["filename"]:
+                    raise ValueError("Missing required metadata key 'filename' for file handling.")
                 self.handle_file(detector, extra=extra, verbosity=verbosity, **md)
                 # self.handle_file(detector, extra=extra, verbosity=verbosity)
 
@@ -2481,7 +2491,7 @@ class Sample_Generic(CoordinateSystem):
         # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
         if verbosity >= 3:
-            print("  Data saved to: {}".format(filename))
+            self._print_clickable_path("Data saved to", filename)
 
         # if md['measure_type'] is not 'snap':
         if True:
@@ -2496,15 +2506,31 @@ class Sample_Generic(CoordinateSystem):
             # savename = self.get_savename(savename_extra=extra)
             # print(md)
             savename = md["filename"]
-            # link_name = '{}/{}{}_{:04d}_maxs.tiff'.format(RE.md['experiment_alias_directory'], subdir, savename, RE.md['scan_id']-1)
-            link_name = "{}/{}{}_{}_000000_{}.tiff".format(RE.md["experiment_alias_directory"], 
-                                                           subdir, 
-                                                           savename, 
-                                                           RE.md['scan_id']-1,
-                                                           detname).replace('//','/')
-            # if 'camera' in detector.name:
-            #     link_name = "{}/{}{}_000000_{}.png".format(RE.md["experiment_alias_directory"], subdir, savename, detname).replace('//','/')
-            print(f"  A symlink will be created at: {proposal_path()}experiments/{link_name}")
+            source_basename = os.path.basename(filename)
+            source_stem, source_ext = os.path.splitext(source_basename)
+            if not source_ext:
+                source_ext = ".tiff"
+
+            # Prefect linker keeps the frame index from the source file suffix.
+            if "_" in source_stem:
+                _, frame_index = source_stem.rsplit("_", 1)
+            else:
+                frame_index = "000000"
+
+            link_name = "{}/{}{}_{}_{}.{}".format(
+                RE.md["experiment_alias_directory"],
+                subdir,
+                savename,
+                frame_index,
+                detname,
+                source_ext.lstrip("."),
+            ).replace("//", "/")
+
+            if os.path.isabs(link_name):
+                link_path = os.path.normpath(link_name)
+            else:
+                link_path = os.path.normpath(os.path.join(proposal_path(), "experiments", link_name))
+            self._print_clickable_path("Symlink target will be created by prefect: ", link_path)
             
             # if os.path.isfile(link_name):
             #     i = 1
@@ -2555,7 +2581,7 @@ class Sample_Generic(CoordinateSystem):
             # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
             if verbosity >= 3:
-                print("  Data saved to: {}".format(filename))
+                self._print_clickable_path("Data saved to", filename)
 
             # if md['measure_type'] is not 'snap':
             if True:
@@ -2601,7 +2627,7 @@ class Sample_Generic(CoordinateSystem):
             # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
             if verbosity >= 3:
-                print("  Data saved to: {}".format(filename))
+                self._print_clickable_path("Data saved to", filename)
 
             if subdirs:
                 subdir = "/maxs/raw/"
@@ -2648,7 +2674,7 @@ class Sample_Generic(CoordinateSystem):
             # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
             if verbosity >= 3:
-                print("  Data saved to: {}".format(filename))
+                self._print_clickable_path("Data saved to", filename)
 
             if subdirs:
                 subdir = "/saxs/raw/"
@@ -2692,7 +2718,7 @@ class Sample_Generic(CoordinateSystem):
             # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
             if verbosity >= 3:
-                print("  Data saved to: {}".format(filename))
+                self._print_clickable_path("Data saved to", filename)
 
             if subdirs:
                 subdir = "/waxs/raw/"
@@ -3123,8 +3149,7 @@ class Sample_Generic(CoordinateSystem):
         md_current.update(self.get_measurement_md())
         md_current["sample_savename"] = savename
         md_current["measure_type"] = measure_type
-        # md_current['filename'] = '{:s}_{:04d}.tiff'.format(savename, md_current['detector_sequence_ID'])
-        md_current["filename"] = "{:s}_{:04d}".format(savename, RE.md["scan_id"])
+        md_current["filename"] = self.build_measurement_filename(savename)
         md_current["beam_int_bim3"] = beam.bim3.flux(verbosity=0)
         md_current["beam_int_bim4"] = beam.bim4.flux(verbosity=0)
         md_current["beam_int_bim5"] = beam.bim5.flux(verbosity=0)
@@ -3243,9 +3268,7 @@ class Sample_Generic(CoordinateSystem):
         md_current.update(self.get_measurement_md())
         md_current["sample_savename"] = savename
         md_current["measure_type"] = measure_type
-        # md_current['filename'] = '{:s}_{:04d}'.format(savename, md_current['detector_sequence_ID'])
-        # md_current['filename'] = '{:s}_{:04d}'.format(savename, RE.md['scan_id'])
-        md_current["filename"] = "{:s}_{:06d}".format(savename, RE.md["scan_id"])
+        md_current["filename"] = self.build_measurement_filename(savename)
         md_current.update(md)
         # print(self.md)
 
@@ -4339,8 +4362,8 @@ class Sample_Generic(CoordinateSystem):
         # Alternate method to get the last filename
         # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
-        if verbosity>=3:
-           print('  Data saved to: {}'.format(filename))
+        if verbosity >= 3:
+            self._print_clickable_path("Data saved to", filename)
 
         # if md['measure_type'] is not 'snap':
         if True:
