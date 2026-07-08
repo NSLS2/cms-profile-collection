@@ -131,7 +131,11 @@ def with_tiling(tiling_mode=None):
         def wrapper(*args, **kwargs):
             has_runtime_tiling = "tiling" in kwargs
             runtime_tiling = kwargs.pop("tiling", None)
-            effective_tiling = runtime_tiling if has_runtime_tiling else tiling_mode
+            # Treat falsy runtime values (None, False) as "no tiling override"
+            if has_runtime_tiling:
+                effective_tiling = runtime_tiling or None
+            else:
+                effective_tiling = tiling_mode
 
             if effective_tiling is None:
                 return _call_func(args, kwargs)
@@ -171,17 +175,17 @@ def with_tiling(tiling_mode=None):
 
             try:
                 for i, tile in enumerate(tiles):
-                    # move detectors to tile offset from saved origin
+                    # move detectors to tile offset from saved origin as a bluesky plan
+                    # so that Ctrl+C is handled cleanly by the RunEngine
+                    motor_args = []
                     if pilatus2M in cms.detector:
-                        SAXSy.move(SAXSy_o + tile["SAXSy"])
-                        SAXSx.move(SAXSx_o + tile["SAXSx"])
+                        motor_args += [SAXSy, SAXSy_o + tile["SAXSy"], SAXSx, SAXSx_o + tile["SAXSx"]]
                     if pilatus800 in cms.detector:
-                        WAXSy.move(WAXSy_o + tile["WAXSy"])
-                        WAXSx.move(WAXSx_o + tile["WAXSx"])
+                        motor_args += [WAXSy, WAXSy_o + tile["WAXSy"], WAXSx, WAXSx_o + tile["WAXSx"]]
                     if pilatus8002 in cms.detector:
-                        MAXSy.move(MAXSy_o + tile["MAXSy"])
-                    if pilatus8002 in cms.detector:
-                        MAXSx.move(MAXSx_o + tile["MAXSx"])
+                        motor_args += [MAXSy, MAXSy_o + tile["MAXSy"], MAXSx, MAXSx_o + tile["MAXSx"]]
+                    if motor_args:
+                        RE(bps.mv(*motor_args))
 
                     # build per-tile metadata (copy so each tile is independent)
                     tile_kwargs = dict(base_kwargs)
@@ -201,16 +205,17 @@ def with_tiling(tiling_mode=None):
                     _call_func(args, tile_kwargs)
 
             finally:
-                # restore detector positions unconditionally
+                # restore detector positions unconditionally as a bluesky plan
+                # so that the RunEngine properly waits for motion to complete
+                restore_args = []
                 if pilatus2M in cms.detector:
-                    SAXSy.move(SAXSy_o)
-                    SAXSx.move(SAXSx_o)
+                    restore_args += [SAXSy, SAXSy_o, SAXSx, SAXSx_o]
                 if pilatus800 in cms.detector:
-                    WAXSy.move(WAXSy_o)
-                    WAXSx.move(WAXSx_o)
+                    restore_args += [WAXSy, WAXSy_o, WAXSx, WAXSx_o]
                 if pilatus8002 in cms.detector:
-                    MAXSy.move(MAXSy_o)
-                    MAXSx.move(MAXSx_o)
+                    restore_args += [MAXSy, MAXSy_o, MAXSx, MAXSx_o]
+                if restore_args:
+                    RE(bps.mv(*restore_args))
                 RE.md.pop("tiling", None)
         return wrapper
     return decorator
@@ -2762,7 +2767,7 @@ class Sample_Generic(CoordinateSystem):
         extra=None,
         measure_type="measure",
         verbosity=3,
-        tiling=False,
+        tiling=None,
         stitchback=False,
         **md,
     ):
@@ -3055,8 +3060,8 @@ class Sample_Generic(CoordinateSystem):
                 verbosity=verbosity,
                 **md,
             )
-        elif tiling is None:
-            # Just do a normal measurement
+        elif not tiling:
+            # tiling is None or False: just do a normal measurement
             self.measure_single(
                 exposure_time=exposure_time,
                 extra=extra,
@@ -3594,7 +3599,7 @@ class Sample_Generic(CoordinateSystem):
         extra=None,
         shutteronoff=True,
         measure_type="measureSpots",
-        tiling=False,
+        tiling=None,
         **md,
     ):
         """Measure multiple spots on the sample."""
@@ -3629,7 +3634,7 @@ class Sample_Generic(CoordinateSystem):
         exposure_time=None,
         extra=None,
         measure_type="measureSpots",
-        tiling=False,
+        tiling=None,
         **md,
     ):
         """Measure multiple spots on the sample."""
@@ -3652,7 +3657,7 @@ class Sample_Generic(CoordinateSystem):
         extra=None,
         measure_type="measureTimeSeries",
         verbosity=3,
-        tiling=False,
+        tiling=None,
         fix_name=True,
         **md,
     ):
@@ -3691,7 +3696,7 @@ class Sample_Generic(CoordinateSystem):
         extra=None,
         measure_type="measureTimeSeries",
         verbosity=3,
-        tiling=False,
+        tiling=None,
         fix_name=True,
         **md,
     ):
@@ -3726,7 +3731,7 @@ class Sample_Generic(CoordinateSystem):
         extra=None,
         measure_type="measureTemperature",
         verbosity=3,
-        tiling=False,
+        tiling=None,
         poling_period=1.0,
         fix_name=True,
         **md,
@@ -3774,7 +3779,7 @@ class Sample_Generic(CoordinateSystem):
         extra=None,
         measure_type="measureTemperature",
         verbosity=3,
-        tiling=False,
+        tiling=None,
         poling_period=1.0,
         fix_name=True,
         **md,
