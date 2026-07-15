@@ -142,7 +142,9 @@ class SampleGISAXS_Generic(Sample_Generic):
             self.thabs(angle)
             while sth.moving == True:
                 time.sleep(0.1)
-            time.sleep(0.5)
+            # time.sleep(0.5)
+            while MAXSy.moving==True:
+                time.sleep(0.1)
             self.measure_single(exposure_time=exposure_time, extra=extra, verbosity=verbosity, **md)
 
     def measureIncidentAngles_Stitch(
@@ -157,6 +159,377 @@ class SampleGISAXS_Generic(Sample_Generic):
             verbosity=verbosity,
             **md,
         )
+
+
+    # def measureIncidentAngles_Stitch(self, angles=None, exposure_time=None, extra=None, tiling=None, verbosity=3, **md):
+
+    #     # measure the incident angles first and then change the tiling features.
+
+    #     if tiling == None:
+    #         if angles is None:
+    #             angles = self.incident_angles_default
+    #         for angle in angles:
+    #             self.measureIncidentAngle(angle, exposure_time=exposure_time, extra=extra, tiling=tiling, **md)
+
+    #     elif tiling == "ygaps":
+    #         if angles is None:
+    #             angles = self.incident_angles_default
+
+
+    #         # pos1
+
+
+    #         for angle in angles:
+    #             self.thabs(angle)
+    #             while sth.moving == True:
+    #                 time.sleep(0.1)
+    #             time.sleep(0.5)
+    #             extra_current = "pos1" if extra is None else "{}_pos1".format(extra)
+    #             md["detector_position"] = "lower"
+    #             self.measure_single(
+
+
+    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
+
+
+    #             )
+
+    #         # pos2
+
+
+    #         SAXSy_o = SAXSy.user_readback.value
+
+
+    #         SAXSx_o = SAXSx.user_readback.value
+
+
+    #         WAXSy_o = WAXSy.user_readback.value
+
+
+    #         WAXSx_o = WAXSx.user_readback.value
+
+
+    #         MAXSy_o = MAXSy.user_readback.value
+
+
+    #         if pilatus2M in cms.detector:
+
+
+    #             SAXSy.move(SAXSy_o + 5.16)
+
+
+    #         if pilatus800 in cms.detector:
+
+
+    #             WAXSy.move(WAXSy_o + 5.16)
+
+
+    #         if pilatus8002 in cms.detector:
+
+
+    #             MAXSy.move(MAXSy_o + 5.16)
+
+
+
+
+
+    #         for angle in angles:
+
+
+    #             self.thabs(angle)
+
+
+    #             while sth.moving == True:
+
+
+    #                 time.sleep(0.1)
+
+
+    #             time.sleep(0.5)
+
+
+
+
+
+    #             extra_current = "pos2" if extra is None else "{}_pos2".format(extra)
+
+
+    #             md["detector_position"] = "upper"
+
+
+    #             self.measure_single(
+
+
+    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
+
+
+    #             )
+
+
+
+
+
+    #         if SAXSy.user_readback.value != SAXSy_o:
+
+
+    #             SAXSy.move(SAXSy_o)
+
+
+    #         if WAXSy.user_readback.value != WAXSy_o:
+
+
+    #             WAXSy.move(WAXSy_o)
+
+
+    #         if MAXSy.user_readback.value != MAXSy_o:
+
+
+    #             MAXSy.move(MAXSy_o)
+
+
+
+
+
+    #     elif tiling == "xygaps":
+
+
+    #         if angles is None:
+
+
+    #             angles = self.incident_angles_default
+
+
+    #         # pos1
+
+
+    #         for angle in angles:
+
+
+    #             self.thabs(angle)
+
+
+    #             time.sleep(0.5)
+
+
+    #             extra_current = "pos1" if extra is None else "{}_pos1".format(extra)
+
+
+    #             md["detector_position"] = "lower_left"
+
+
+    #             self.measure_single(
+
+
+    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
+
+
+    #             )
+
+
+
+
+
+    #         # pos2
+
+
+    #         SAXSy_o = SAXSy.user_readback.value
+
+
+    #         SAXSx_o = SAXSx.user_readback.value
+
+
+    #         WAXSy_o = WAXSy.user_readback.value
+
+
+    #         WAXSx_o = WAXSx.user_readback.value
+
+
+    #         # MAXSy_o = MAXSy.user_readback.value
+
+
+
+
+
+    #         for angle in angles:
+
+
+    #             self.thabs(angle)
+
+
+    #             time.sleep(0.2)
+
+
+    #             if pilatus2M in cms.detector:
+
+
+    #                 SAXSy.move(SAXSy_o + 5.16)
+
+
+    #             if pilatus800 in cms.detector:
+
+
+    #                 WAXSy.move(WAXSy_o + 5.16)
+
+
+    #             if pilatus300 in cms.detector:
+
+
+    #                 MAXSy.move(MAXSy_o + 5.16)
+
+
+
+
+
+    #             extra_current = "pos2" if extra is None else "{}_pos2".format(extra)
+
+
+    #             md["detector_position"] = "upper"
+
+
+    #             self.measure_single(
+
+
+    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
+
+
+    #             )
+
+
+
+
+
+    #         # pos4  #comment out to save time
+
+
+    #         for angle in angles:
+
+
+    #             self.thabs(angle)
+
+
+    #             time.sleep(0.2)
+
+
+
+
+
+    #             if pilatus2M in cms.detector:
+
+
+    #                 SAXSx.move(SAXSx_o + 5.16)
+
+
+    #                 SAXSy.move(SAXSy_o + 5.16)
+
+
+    #             if pilatus800 in cms.detector:
+
+
+    #                 WAXSx.move(WAXSx_o - 5.16)
+
+
+    #                 WAXSy.move(WAXSy_o + 5.16)
+
+
+    #             extra_current = "pos4" if extra is None else "{}_pos4".format(extra)
+
+
+    #             md["detector_position"] = "upper_right"
+
+
+    #             self.measure_single(
+
+
+    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
+
+
+    #             )
+
+
+
+
+
+    #         # pos3
+
+
+    #         for angle in angles:
+
+
+    #             self.thabs(angle)
+
+
+    #             time.sleep(0.2)
+
+
+
+
+
+    #             if pilatus2M in cms.detector:
+
+
+    #                 SAXSx.move(SAXSx_o + 5.16)
+
+
+    #                 SAXSy.move(SAXSy_o)
+
+
+    #             if pilatus800 in cms.detector:
+
+
+    #                 WAXSx.move(WAXSx_o - 5.16)
+
+
+    #                 WAXSy.move(WAXSy_o)
+
+
+
+
+
+    #             extra_current = "pos3" if extra is None else "{}_pos3".format(extra)
+
+
+    #             md["detector_position"] = "lower_right"
+
+
+    #             self.measure_single(
+
+
+    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
+
+
+    #             )
+
+
+
+
+
+    #         if WAXSx.user_readback.value != WAXSx_o:
+
+
+    #             WAXSx.move(WAXSx_o)
+
+
+    #         if WAXSy.user_readback.value != WAXSy_o:
+
+
+    #             WAXSy.move(WAXSy_o)
+
+
+
+
+
+    #         if SAXSx.user_readback.value != SAXSx_o:
+
+
+    #             SAXSx.move(SAXSx_o)
+
+
+    #         if SAXSy.user_readback.value != SAXSy_o:
+
+
+    #             SAXSy.move(SAXSy_o)
+
+
 
     ################# Direct beam transmission measurement ####################
     def intMeasure(self, output_file, exposure_time):

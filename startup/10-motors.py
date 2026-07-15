@@ -399,7 +399,7 @@ fpr = EpicsMotor("XF:11BM-ES{Mdrive-Ax:2}Mtr", name="fpr")
  
 
 # goniometer
-smy2 = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Y}Mtr", name="smy2")
+smy2 = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Y2}Mtr", name="smy2")
 sphi = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:phi}Mtr", name="sphi")
 
 

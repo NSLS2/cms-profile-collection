@@ -47,8 +47,8 @@ if False:
     RE.install_suspender(sus)
 
 # Set experiment directories and calibration
-RE.md['experiment_alias_directory'] = '3_Tensile_Cycling'
-RE.md["userpy_alias_directory"] = '/nsls2/data/cms/shared/config/bluesky/profile_collection/users/2026-1/WZhang'
+RE.md['experiment_alias_directory'] = 'SWu/ShuyiXie/1_Tensile_Cycling'
+RE.md["userpy_alias_directory"] = '/nsls2/data/cms/shared/config/bluesky/profile_collection/users/2026-2/beamline/SWu/'
 # cms.SAXS.setCalibration([755, 1081], 5.03, [-65, -73])  #2025 Aug 5m
 cms.SAXS.setCalibration([742, 1081], 5.03, [-65, -73]) 
 
@@ -149,7 +149,7 @@ class Sample(SampleTSAXS):
        
         super().__init__(name=name, base=base, **md)
 
-        self.naming_scheme = ['name', 'extra', 'id', 'clock', 'LTensile_temperature', 'LTensile_position', 'LTensile_force', 'exposure_time'] #, 'exposure_time']
+        self.naming_scheme = ['name', 'extra', 'id', 'clock', 'x', 'LTensile_temperature', 'LTensile_position', 'LTensile_force', 'exposure_time'] #, 'exposure_time']
 
         self.stage = LTensile.stage
         self._stage = LTensile
@@ -239,7 +239,7 @@ class Sample(SampleTSAXS):
         Entry point for user: runs Linkam and archiver async, then triggers Bluesky
         """
 
-        self.naming_scheme = ['name', 'extra', 'id', 'clock', 'LTensile_temperature', 'LTensile_position', 'LTensile_force', 'exposure_time'] #, 'exposure_time']
+        self.naming_scheme = ['name', 'extra', 'id', 'x', 'clock', 'LTensile_temperature', 'LTensile_position', 'LTensile_force', 'exposure_time'] #, 'exposure_time']
 
         if exposure_time is None:
             exposure_time = self.exposure_time
@@ -368,7 +368,20 @@ class Sample(SampleTSAXS):
             print(f'\n[Bluesky] Current Position: {LTensile.POS.get():.1f}um, Current Force: {LTensile.FORCE.get():.1f}N')
             # Replace custom measurement plan here
 
-            self.measure(exposure_time, *args, **kwargs)
+
+            # self.measure(exposure_time, *args, **kwargs)
+
+            # dynamic plan for scan x axis
+            # x pos change as a function of tensile stage streth length.
+            L0 = 2.975 # The initial tensile stage pos reading, unit in mm
+            dL = LTensile.POS.get()/1000 - L0 # the change of the tensile stage length, unit in mm
+            sam_length = 5.99 # the length of the sample, unit in mm
+            sam_ROI_0 = 0.15 # the initial region of interest on the sample, unit in mm
+            sam_ROI = sam_ROI_0 * (1 + dL / L0) # the change of the region of interest on the sample, unit in mm
+
+            for xpos in np.arange(-sam_ROI, sam_ROI+0.01, sam_ROI):
+                self.xabs(xpos)
+                self.measure(exposure_time, *args, **kwargs)
 
             # Custom plan for scan y axis
             # for ypos in [-0.3, 0, 0.3]:
@@ -377,6 +390,10 @@ class Sample(SampleTSAXS):
             #     time.sleep(1)
             #     self.measure(exposure_time, *args, **kwargs)
 
+            # # Custom plan for burst mode,
+            # # it calculates the number of frames needed for a burst 
+            # #     based on the velocity and step length, 
+            # #     then triggers a series measurement.
             # num_frames = (step_length_um / velocity + 10) / exposure_time  # Number of frames per burst
             # numframes = int(np.ceil(num_frames))
             # self.series_measure(num_frames=numframes,

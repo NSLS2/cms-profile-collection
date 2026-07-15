@@ -2329,7 +2329,7 @@ class Sample_Generic(CoordinateSystem):
                 # self.handle_file(detector, extra=extra, verbosity=verbosity)
 
                 # if datasecurity:
-                #     self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
+                    # self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
 
     '''
     # def _expose_test(self, exposure_time=None, extra=None, handlefile=True, verbosity=3, poling_period=0.1, **md):
@@ -2527,65 +2527,64 @@ class Sample_Generic(CoordinateSystem):
             #         raise ValueError('NO IMAGE OUTPUT.')
 
 
-    if False:
-        #handle_file after datasecurity, saving data in /profile_collections/users/
-        def handle_file_datasecurity(self, detector, extra=None, verbosity=3, subdirs=True, linksave=True, **md):
-            subdir = ""
-            if subdirs:
-                if detector.name == "pilatus300k-1" or detector.name == "pilatus800k-2":
-                    subdir = "/maxs/raw/"
-                    detname = "maxs"
-                elif detector.name == "pilatus2m-1":
-                    subdir = "/saxs/raw/"
-                    detname = "saxs"
-                elif detector.name == "pilatus800k-1":
-                    subdir = "/waxs/raw/"
-                    detname = "waxs"
-                elif 'webcam' in detector.name:
-                    subdir = "/camera/"
-                    detname = detector.name
+    # #handle_file after datasecurity, saving data in /profile_collections/users/
+    # def handle_file_datasecurity(self, detector, extra=None, verbosity=3, subdirs=True, linksave=True, **md):
+    #     subdir = ""
+    #     if subdirs:
+    #         if detector.name == "pilatus300k-1" or detector.name == "pilatus800k-2":
+    #             subdir = "/maxs/raw/"
+    #             detname = "maxs"
+    #         elif detector.name == "pilatus2m-1":
+    #             subdir = "/saxs/raw/"
+    #             detname = "saxs"
+    #         elif detector.name == "pilatus800k-1":
+    #             subdir = "/waxs/raw/"
+    #             detname = "waxs"
+    #         elif 'webcam' in detector.name:
+    #             subdir = "/camera/"
+    #             detname = detector.name
 
-                else:
-                    if verbosity >= 1:
-                        print("WARNING: Can't do file handling for detector '{}'.".format(detector.name))
-                        return
+    #         else:
+    #             if verbosity >= 1:
+    #                 print("WARNING: Can't do file handling for detector '{}'.".format(detector.name))
+    #                 return
 
-            filename = detector.tiff.full_file_name.get()  # RL, 20210831
-            # Alternate method to get the last filename
-            # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
+    #     filename = detector.tiff.full_file_name.get()  # RL, 20210831
+    #     # Alternate method to get the last filename
+    #     # filename = '{:s}/{:s}.tiff'.format( detector.tiff.file_path.get(), detector.tiff.file_name.get()  )
 
-            if verbosity >= 3:
-                print("  Data saved to: {}".format(filename))
+    #     if verbosity >= 3:
+    #         print("  Data saved to: {}".format(filename))
 
-            # if md['measure_type'] is not 'snap':
-            if True:
-                # self.set_attribute('exposure_time', caget('XF:11BMB-ES{Det:SAXS}:cam1:AcquireTime'))
-                self.set_attribute("exposure_time", detector.cam.acquire_time.get())  # RL, 20210831
-                # print("Exposure time:", detector.cam.acquire_time.get())
-                # print("Filename:", md["filename"])
-                # Create symlink
-                # link_name = '{}/{}{}'.format(RE.md['experiment_alias_directory'], subdir, md['filename'])
-                # savename = md['filename'][:-5]
+    #     # if md['measure_type'] is not 'snap':
+    #     if True:
+    #         # self.set_attribute('exposure_time', caget('XF:11BMB-ES{Det:SAXS}:cam1:AcquireTime'))
+    #         self.set_attribute("exposure_time", detector.cam.acquire_time.get())  # RL, 20210831
+    #         # print("Exposure time:", detector.cam.acquire_time.get())
+    #         # print("Filename:", md["filename"])
+    #         # Create symlink
+    #         # link_name = '{}/{}{}'.format(RE.md['experiment_alias_directory'], subdir, md['filename'])
+    #         # savename = md['filename'][:-5]
 
-                savename = self.get_savename(savename_extra=extra)
-                link_name = savename + '_' + str(RE.md['scan_id']-1) + '_' + detname + '.tiff'
-                # savename = md["filename"]
-                # link_name = md["filename"] + '_' + str(RE.md['scan_id']-1) + '_' + detname + '.tiff'
+    #         savename = self.get_savename(savename_extra=extra)
+    #         link_name = savename + '_' + str(RE.md['scan_id']-1) + '_' + detname + '.tiff'
+    #         # savename = md["filename"]
+    #         # link_name = md["filename"] + '_' + str(RE.md['scan_id']-1) + '_' + detname + '.tiff'
 
-                print(link_name)
-                link_folder = RE.md["userpy_alias_directory"] + '/' + RE.md['experiment_alias_directory'].split('/')[-1] + '/' + subdir 
-                if os.path.exists(link_folder) == False:
-                    os.makedirs(link_folder)
+    #         print(link_name)
+    #         link_folder = RE.md["userpy_alias_directory"] + '/' + RE.md['experiment_alias_directory'].split('/')[-1] + '/' + subdir 
+    #         if os.path.exists(link_folder) == False:
+    #             os.makedirs(link_folder)
 
-                os.symlink(filename, link_folder+link_name)
+    #         os.symlink(filename, link_folder+link_name)
 
 
-                # =====================================================
-                # # link_name = '{}/{}{}_{:04d}_maxs.tiff'.format(RE.md['experiment_alias_directory'], subdir, savename, RE.md['scan_id']-1)
-                # link_name = "{}/{}{}_000000_{}.tiff".format(RE.md["userpy_alias_directory"], subdir, savename, detname).replace('//','/')
-                # if 'camera' in detector.name:
-                #     link_name = "{}/{}{}_000000_{}.png".format(RE.md["experiment_alias_directory"], subdir, savename, detname).replace('//','/')
-                print(f"  Cusomized symlink: {link_folder}/{link_name}")
+    #         # =====================================================
+    #         # # link_name = '{}/{}{}_{:04d}_maxs.tiff'.format(RE.md['experiment_alias_directory'], subdir, savename, RE.md['scan_id']-1)
+    #         # link_name = "{}/{}{}_000000_{}.tiff".format(RE.md["userpy_alias_directory"], subdir, savename, detname).replace('//','/')
+    #         # if 'camera' in detector.name:
+    #         #     link_name = "{}/{}{}_000000_{}.png".format(RE.md["experiment_alias_directory"], subdir, savename, detname).replace('//','/')
+    #         print(f"  Cusomized symlink: {link_folder}/{link_name}")
                 
 
     #before data security @ 2025-3
@@ -3201,7 +3200,7 @@ class Sample_Generic(CoordinateSystem):
             self.handle_file(detector, extra=extra, verbosity=verbosity, **md_current)
             # self.handle_file(detector, extra=extra, verbosity=verbosity)
             # if datasecurity:
-            #     self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
+                # self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
 
         self.md["measurement_ID"] += 1
 
