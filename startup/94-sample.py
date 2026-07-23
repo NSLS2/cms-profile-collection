@@ -2329,7 +2329,7 @@ class Sample_Generic(CoordinateSystem):
                 # self.handle_file(detector, extra=extra, verbosity=verbosity)
 
                 # if datasecurity:
-                    # self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
+                #     self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
 
     '''
     # def _expose_test(self, exposure_time=None, extra=None, handlefile=True, verbosity=3, poling_period=0.1, **md):

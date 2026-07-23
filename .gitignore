@@ -160,7 +160,7 @@ users/
 .skill/*
 
 # Configuration files
-.vscode/*
+.vscode/
 startup/.cms_config
 startup/cfg/*
 *.cfg
