@@ -514,7 +514,9 @@ if Camera_on==True:
     # time.sleep(1)
     fs2 = StandardProsilicaV33("XF:11BMA-BI{FS:2-Cam:1}", name="webcam-2")
     # time.sleep(1)
-    fs3 = StandardProsilicaV33("XF:11BMB-BI{FS:3-Cam:1}", name="webcam-3")
+    # fs3 = StandardProsilicaV33("XF:11BMB-BI{FS:3-Cam:1}", name="webcam-3")
+
+    fs3 = fs2
     # time.sleep(1)
     fs4 = StandardProsilicaV33("XF:11BMB-BI{FS:4-Cam:1}", name="webcam-4")
     # mobile camera
@@ -525,12 +527,15 @@ if Camera_on==True:
     fs8 = StandardProsilicaV33("XF:11BMB-BI{Cam:08}", name="webcam-8")
     fs9 = StandardProsilicaV33("XF:11BMB-BI{OnAxis-Cam:2}", name="webcam-9")
 
-    all_standard_pros = [fs2, fs3, fs4]
+    # all_standard_pros = [fs2, fs3, fs4]
+    all_standard_pros = [fs2, fs4]
+
 
     time.sleep(1)
 
     # for cam_number, fs in zip([1,2,3,4], [fs1, fs2, fs3, fs4]):
-    for cam_number, fs in zip([2, 3, 4], [fs2, fs3, fs4]):
+    # for cam_number, fs in zip([2, 3, 4], [fs2, fs3, fs4]):
+    for cam_number, fs in zip([2, 4], [fs2, fs4]):
         G, port_dict = fs.get_asyn_digraph()
         cam = port_dict["cam{:02}".format(cam_number)]
         for v in port_dict.values():
@@ -581,7 +586,8 @@ if Camera_on==True:
     #     item_check = getattr(fs1.cam, item)
     #     item_check.kind = "omitted"
 
-    all_standard_pros = [fs1, fs2, fs3, fs4, fs5, fs6, fs8, fs9]
+    # all_standard_pros = [fs1, fs2, fs3, fs4, fs5, fs6, fs8, fs9]
+    all_standard_pros = [fs1, fs2, fs4, fs5, fs6, fs8, fs9]
     for camera in all_standard_pros:
         camera.read_attrs = ['stats1', 'stats2', 'stats3', 'stats4', 'stats5']
         # camera.tiff.read_attrs = []  # leaving just the 'image'
