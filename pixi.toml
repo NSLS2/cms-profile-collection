@@ -1,5 +1,5 @@
 [workspace]
-channels = ["conda-forge"]
+channels = ["conda-forge", "robostack-jazzy"]
 name = "cms-profile-collection"
 platforms = [{ platform = "linux-64", glibc = "2.17" }]
 version = "2026.2.0"
@@ -66,3 +66,4 @@ qs = {features=["profile", "qs"], solve-group="profile"}
 
 [dependencies]
 sympy = ">=1.14.0,<2"
+ros-jazzy-rclpy = ">=7.1.11,<8"
