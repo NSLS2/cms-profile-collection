@@ -1,5 +1,5 @@
 [workspace]
-channels = ["conda-forge"]
+channels = ["conda-forge", "robostack-jazzy"]
 name = "cms-profile-collection"
 platforms = [{ platform = "linux-64", glibc = "2.17" }]
 version = "2026.2.0"
@@ -17,7 +17,7 @@ ophyd = ">=1.11.2"
 pyepics = "*"
 python = ">=3.12,<3.13"
 semver = ">=3.0.4,<4"
-tiled-client = "==0.2.9"
+tiled-client = ">=0.2.9"
 lmfit = ">=1.3.4,<2"
 paramiko = ">=4.0.0,<5"
 peakutils = ">=1.3.5,<2"
@@ -28,8 +28,23 @@ hdf5-external-filter-plugins = ">=0.1.0,<0.2"
 blosc-hdf5-plugin = ">=1.0.1,<2"
 databroker = "==2.0.0"
 epicscorelibs = ">=7.0.7.99.1.1,<8"
-bluesky-tiled-plugins = "==2.0.2"
+bluesky-tiled-plugins = ">=2.0.2"
 ophyd-async = ">=0.13.7,<0.14"
+ros-jazzy-rclpy = ">=7.1.11,<8"
+ros-jazzy-ros2cli = ">=0.32.9,<0.33"
+ros-jazzy-ros2topic = ">=0.32.9,<0.33"
+ros-jazzy-ros2action = ">=0.32.9,<0.33"
+ros-jazzy-ros2node = ">=0.32.9,<0.33"
+ros-jazzy-turtlesim = ">=1.8.3,<2"
+ros-jazzy-rosidl-default-generators = ">=1.6.0,<2"
+ros-jazzy-rosidl-default-runtime = ">=1.6.0,<2"
+ros-jazzy-rosidl-typesupport-c = ">=3.2.2,<4"
+ros-jazzy-rosidl-generator-py = ">=0.22.2,<0.23"
+ros-jazzy-rosidl-generator-c = ">=4.6.7,<5"
+ros-jazzy-ament-cmake-python = ">=2.5.6,<3"
+ros-jazzy-geometry-msgs = ">=5.3.7,<6"
+ros-jazzy-std-msgs = ">=5.3.7,<6"
+sympy = ">=1.14.0,<2"
 #typing-extensions = ">=4.15.0"
 #pydantic  = ">=2.12.5"
 
@@ -66,3 +81,4 @@ qs = {features=["profile", "qs"], solve-group="profile"}
 
 [dependencies]
 sympy = ">=1.14.0,<2"
+ros-jazzy-rclpy = ">=7.1.11,<8"
