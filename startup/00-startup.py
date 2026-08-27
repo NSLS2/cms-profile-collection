@@ -8,7 +8,6 @@ try:
 except KeyError:
     pass
 
-from epics import caget, caput
 
 from tiled.client import from_profile
 from databroker import Broker

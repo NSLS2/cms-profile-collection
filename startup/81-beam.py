@@ -233,76 +233,6 @@ class CMS_WAXS_Detector(BeamlineDetector):
 
         return md_return
 
-class CMS_TAXS_Detector(BeamlineDetector):
-    def __init__(self, detector, **md):
-        self.detector = pilatus300
-
-        self.md = md
-
-    def setCalibration(self, direct_beam, distance, detector_position=None, pixel_size=0.172):
-        self.direct_beam = direct_beam
-        self.distance = distance
-        if detector_position is None:
-            self.detector_position = [
-                WAXSx.user_readback.value,
-                WAXSy.user_readback.value,
-            ]
-        else:
-            self.detector_position = detector_position
-        self.pixel_size = pixel_size
-
-    def get_md(self, prefix="detector_TAXS_", **md):
-        md_return = self.md.copy()
-
-        x0, y0 = self.direct_beam
-        position_defined_x, position_defined_y = self.detector_position
-        position_current_x, position_current_y = (
-            WAXSx.user_readback.value,
-            WAXSy.user_readback.value,
-        )
-
-        md_return["name"] = self.detector.name
-        md_return["epics_name"] = "{Det-P300K:2}"
-
-        # if pilatus_name==pilatus300k:
-        # md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
-        # md_return['y0_pix'] = round( y0 + (position_current_y-position_defined_y)/self.pixel_size , 2 )
-        # if pilatus_name==pilatus800:
-        md_return["x0_pix"] = float(round(x0 + (position_current_x - position_defined_x) / self.pixel_size, 2))
-        md_return["y0_pix"] = float(round(y0 + (position_current_y - position_defined_y) / self.pixel_size, 2))
-
-        # TODO:WAXS PV
-
-        md_return["distance_m"] = self.distance
-
-        md_return["ROI1_X_min"] = caget("XF:11BM-ES{}:ROI1:MinX".format(pilatus_Epicsname))
-        md_return["ROI1_X_size"] = caget("XF:11BM-ES{}:ROI1:SizeX".format(pilatus_Epicsname))
-        md_return["ROI1_Y_min"] = caget("XF:11BM-ES{}:ROI1:MinY".format(pilatus_Epicsname))
-        md_return["ROI1_Y_size"] = caget("XF:11BM-ES{}:ROI1:SizeY".format(pilatus_Epicsname))
-
-        md_return["ROI2_X_min"] = caget("XF:11BM-ES{}:ROI2:MinX".format(pilatus_Epicsname))
-        md_return["ROI2_X_size"] = caget("XF:11BM-ES{}:ROI2:SizeX".format(pilatus_Epicsname))
-        md_return["ROI2_Y_min"] = caget("XF:11BM-ES{}:ROI2:MinY".format(pilatus_Epicsname))
-        md_return["ROI2_Y_size"] = caget("XF:11BM-ES{}:ROI2:SizeY".format(pilatus_Epicsname))
-
-        md_return["ROI3_X_min"] = caget("XF:11BM-ES{}:ROI3:MinX".format(pilatus_Epicsname))
-        md_return["ROI3_X_size"] = caget("XF:11BM-ES{}:ROI3:SizeX".format(pilatus_Epicsname))
-        md_return["ROI3_Y_min"] = caget("XF:11BM-ES{}:ROI3:MinY".format(pilatus_Epicsname))
-        md_return["ROI3_Y_size"] = caget("XF:11BM-ES{}:ROI3:SizeY".format(pilatus_Epicsname))
-
-        md_return["ROI4_X_min"] = caget("XF:11BM-ES{}:ROI4:MinX".format(pilatus_Epicsname))
-        md_return["ROI4_X_size"] = caget("XF:11BM-ES{}:ROI4:SizeX".format(pilatus_Epicsname))
-        md_return["ROI4_Y_min"] = caget("XF:11BM-ES{}:ROI4:MinY".format(pilatus_Epicsname))
-        md_return["ROI4_Y_size"] = caget("XF:11BM-ES{}:ROI4:SizeY".format(pilatus_Epicsname))
-
-        # Include the user-specified metadata
-        md_return.update(md)
-
-        # Add an optional prefix
-        if prefix is not None:
-            md_return = {"{:s}{:s}".format(prefix, key): value for key, value in md_return.items()}
-
-        return md_return
 
 class BeamlineElement(object):
     """Defines a component of the beamline that (may) intersect the x-ray beam."""
@@ -1068,7 +998,10 @@ class CMSBeam(object):
 
         self.bim3 = IonChamber_CMS(beam=self)
         self.bim4 = Scintillator_CMS()
-        self.beam_defining_slit = globals()[beamline_mode_config["beam_defining_slit"]]
+        if beamline_stage == "default":
+            self.beam_defining_slit = s4
+        else:
+            self.beam_defining_slit = s2
         self.bim5 = DiamondDiode_CMS()
         # self.bim6 = PointDiode_CMS()
 
@@ -2125,7 +2058,6 @@ class CMS_Beamline(Beamline):
         self.SAXS = CMS_SAXS_Detector(pilatus2M)
         self.WAXS = CMS_WAXS_Detector(pilatus800)
         self.MAXS = CMS_SAXS_Detector(pilatus8002)
-        self.TAXS = CMS_TAXS_Detector(pilatus300)
 
         from epics import PV
 
@@ -2338,7 +2270,6 @@ class CMS_Beamline(Beamline):
         DETy.move(-6.1)
 
     def beamstopCircular(self, verbosity=3):
-        # Despreciated, use bs = Beamstop.goto() instead see 10-motor.py
         self.beam.setTransmission(1e-6)
 
         bsx.move(0)
@@ -2356,7 +2287,6 @@ class CMS_Beamline(Beamline):
         self.beam.transmission(verbosity=verbosity)
 
     def beamstopLinear(self, verbosity=3):
-        # Despreciated, use bs = Beamstop.goto() instead
         self.beam.setTransmission(1e-6)
 
         bsx.move(0)
@@ -2374,7 +2304,6 @@ class CMS_Beamline(Beamline):
         self.beam.transmission(verbosity=verbosity)
 
     def beamstopCircular_new(self, verbosity=3):
-        # Despreciated, use bs = Beamstop.goto() instead
         self.beam.setTransmission(1e-6)
 
         bsx.move(0)

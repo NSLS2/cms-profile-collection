@@ -2147,7 +2147,7 @@ class SampleSecondStage(SampleGISAXS_Generic):
     Note: steps to initiallize it.
     1. Break vacuum of both chamber and pipe.
     2. Remove the connected tubing and
-    3. Start bsui with CMS_BEAMLINE_MODE=open_MAXS.
+    3. open 10-motors.py. set beamline_stage = 'open_MAXS'
     """
 
     def __init__(self, name, base=None, **md):
