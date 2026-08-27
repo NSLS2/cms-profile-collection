@@ -32,21 +32,19 @@ import time
 import asyncio
 
 
+# Generic Configuration Settings
+
 Pilatus2M_on = True
 # Pilatus2M_on = 'h5'  # 'h5' for h5 mode
 Camera_on=True
-Pilatus300_on = False
+
+HDF5_on = False
 # ONLY 1 Pilatus800 will be turned on at the same time. changed by RL, 20210831
 #
-print("The current stage is {}".format(beamline_stage))
-# beamline_stage = 'default' #for using chamber
-# beamline_stage = 'open_MAXS' #for using the upstream stage
-if beamline_stage == "open_MAXS" or beamline_stage == "BigHuber":
-    Pilatus800_on = False
-    Pilatus800_2_on = True
-elif beamline_stage == "default":
-    Pilatus800_on = True
-    Pilatus800_2_on = False
+print("The current beamline mode is {}".format(beamline_mode))
+Pilatus800_on = beamline_mode_config["pilatus800_on"]
+Pilatus800_2_on = beamline_mode_config["pilatus800_2_on"]
+Pilatus300_on = beamline_mode_config["pilatus300_on"]
 
 # Pilatus800_on = True
 # Pilatus800_2_on = True
@@ -381,6 +379,51 @@ class Pilatus2MV33(SingleTriggerV33, PilatusDetector):#, h5=False):
     def setExposureNumber(self, exposure_number, verbosity=3):
         yield from mv(self.cam.num_images, exposure_number)
 
+class Pilatus300V33(SingleTriggerV33, PilatusDetector):
+    cam = Cpt(PilatusDetectorCamV33, "cam1:")
+    image = Cpt(ImagePlugin, "image1:")
+    stats1 = Cpt(StatsPluginV33, "Stats1:")
+    stats2 = Cpt(StatsPluginV33, "Stats2:")
+    stats3 = Cpt(StatsPluginV33, "Stats3:")
+    stats4 = Cpt(StatsPluginV33, "Stats4:")
+    stats5 = Cpt(StatsPluginV33, "Stats5:")
+    roi1 = Cpt(ROIPlugin, "ROI1:")
+    roi2 = Cpt(ROIPlugin, "ROI2:")
+    roi3 = Cpt(ROIPlugin, "ROI3:")
+    roi4 = Cpt(ROIPlugin, "ROI4:")
+    proc1 = Cpt(ProcessPlugin, "Proc1:")
+
+    tiff = Cpt(
+        TIFFPluginWithFileStore,
+        suffix="TIFF1:",
+        write_path_template = "",
+    )
+
+    def stage(self, *args, **kwargs):
+        self.tiff.write_path_template = assets_path() + f'{self.name}/%Y/%m/%d/'
+        self.tiff.read_path_template = assets_path() + f'{self.name}/%Y/%m/%d/'
+        self.tiff.reg_root = assets_path() + f'{self.name}'
+        return super().stage(*args, **kwargs)
+
+    def setExposureTime(self, exposure_time, verbosity=3):
+        yield from mv(
+            self.cam.acquire_time,
+            exposure_time,
+            # self.cam.acquire_period,
+            # exposure_time + 0.1,
+        )
+        
+        # self.cam.acquire_time.put(exposure_time)
+        # self.cam.acquire_period.put(exposure_time+.1)
+        # caput('XF:11BMB-ES{Det:PIL2M}:cam1:AcquireTime', exposure_time)
+        # caput('XF:11BMB-ES{Det:PIL2M}:cam1:AcquirePeriod', exposure_time+0.1)
+
+    def setExposurePeriod(self, exposure_period, verbosity=3):
+        yield from mv(self.cam.acquire_period, exposure_period)
+
+    def setExposureNumber(self, exposure_number, verbosity=3):
+        yield from mv(self.cam.num_images, exposure_number)
+
 class PilatusV33_h5(SingleTriggerV33, PilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
@@ -654,23 +697,24 @@ if Camera_on==True:
 
 
 
-# pilatus300 section
-# if True:
-if Pilatus300_on == True:
-    pilatus300 = Pilatus300V33("XF:11BMB-ES{Det:SAXS}:", name="pilatus300k-1")
-    # pilatus300 = PilatusV33('XF:11BMB-ES{Det:SAXS}:', name="pilatus300k-1")
-    pilatus300.tiff.read_attrs = []
-    pilatus300.stats3.total.kind = "hinted"
-    pilatus300.stats4.total.kind = "hinted"
-    STATS_NAMES = ["stats1", "stats2", "stats3", "stats4", "stats5"]
-    pilatus300.read_attrs = ["tiff"] + STATS_NAMES
-    for stats_name in STATS_NAMES:
-        stats_plugin = getattr(pilatus300, stats_name)
-        stats_plugin.read_attrs = ["total"]
+# # pilatus300 section
+# # Deprecated Old detector for SAXS
+# # if True:
+# if Pilatus300_on == True:
+#     pilatus300 = Pilatus300V33("XF:11BMB-ES{Det:SAXS}:", name="pilatus300k-1")
+#     # pilatus300 = PilatusV33('XF:11BMB-ES{Det:SAXS}:', name="pilatus300k-1")
+#     pilatus300.tiff.read_attrs = []
+#     pilatus300.stats3.total.kind = "hinted"
+#     pilatus300.stats4.total.kind = "hinted"
+#     STATS_NAMES = ["stats1", "stats2", "stats3", "stats4", "stats5"]
+#     pilatus300.read_attrs = ["tiff"] + STATS_NAMES
+#     for stats_name in STATS_NAMES:
+#         stats_plugin = getattr(pilatus300, stats_name)
+#         stats_plugin.read_attrs = ["total"]
 
-    pilatus300.cam.ensure_nonblocking()
-else:
-    pilatus300 = "Pil300ISNOTWORKING"
+#     pilatus300.cam.ensure_nonblocking()
+# else:
+#     pilatus300 = "Pil300ISNOTWORKING"
 
 # pilatus800 section
 if Pilatus800_on == True:
@@ -809,130 +853,182 @@ if Pilatus2M_on == True:
 else:
     pilatus2M = "Pil2MISNOTWORKING"
 
-if Pilatus2M_on == True:
-
-    pilatus2M_h5 = PilatusV33_h5("XF:11BMB-ES{Det:PIL2M}:", name="pilatus2m-1")
-    pilatus2M_h5.h5.read_attrs = []
-    pilatus2M_h5.cam.ensure_nonblocking()
-
-    STATS_NAMES2M = ["stats1", "stats2", "stats3", "stats4"]
-    pilatus2M_h5.read_attrs = ["h5"] + STATS_NAMES2M
-    # for stats_name in STATS_NAMES2M:
-    #     stats_plugin = getattr(pilatus2M_h5, stats_name)
-    #     stats_plugin.read_attrs = ["total"]
-    # pilatus2M_h5.cam.ensure_nonblocking()
-    # pilatus2M_h5.h5.ensure_blocking()
-    # pilatus2M_h5.stats3.total.kind = "hinted"
-    # pilatus2M_h5.stats4.total.kind = "hinted"
-
-    for item in pilatus2M_h5.stats1.configuration_attrs:
-        item_check = getattr(pilatus2M_h5.stats1, item)
-        item_check.kind = "omitted"
-
-    for item in pilatus2M_h5.stats2.configuration_attrs:
-        item_check = getattr(pilatus2M_h5.stats2, item)
-        item_check.kind = "omitted"
-
-    for item in pilatus2M_h5.stats3.configuration_attrs:
-        item_check = getattr(pilatus2M_h5.stats3, item)
-        item_check.kind = "omitted"
-
-    for item in pilatus2M_h5.stats4.configuration_attrs:
-        item_check = getattr(pilatus2M_h5.stats4, item)
-        item_check.kind = "omitted"
-
-    for item in pilatus2M_h5.stats5.configuration_attrs:
-        item_check = getattr(pilatus2M_h5.stats5, item)
-        item_check.kind = "omitted"
-
-    # for item in pilatus2M_h5.tiff.configuration_attrs:
-    #     item_check = getattr(pilatus2M_h5.tiff, item)
-    #     item_check.kind = "omitted"
-
-    for item in pilatus2M_h5.cam.configuration_attrs:
-        item_check = getattr(pilatus2M_h5.cam, item)
-        item_check.kind = "omitted"
-
-if Pilatus800_on == True:
-    pilatus800_h5 = PilatusV33_h5("XF:11BMB-ES{Det:PIL800K}:", name="pilatus800k-1")
-    pilatus800_h5.h5.read_attrs = []
-    pilatus800_h5.cam.ensure_nonblocking()
-
-    STATS_NAMES2M = ["stats1", "stats2", "stats3", "stats4"]
-    pilatus800_h5.read_attrs = ["h5"] + STATS_NAMES2M
+if Pilatus300_on == True:
+    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-P300K:2}", name="pilatus300k")
+    pilatus300.tiff.read_attrs = []
+    pilatus300.stats3.total.kind = "hinted"
+    pilatus300.stats4.total.kind = "hinted"
+    STATS_NAMES = ["stats1", "stats2", "stats3", "stats4", "stats5"]
+    pilatus300.read_attrs = ["tiff"] + STATS_NAMES
+    # pilatus300.cam.ensure_blocking()
 
     for stats_name in STATS_NAMES:
-        stats_plugin = getattr(pilatus800_h5, stats_name)
+        stats_plugin = getattr(pilatus300, stats_name)
         stats_plugin.read_attrs = ["total"]
 
-    for item in pilatus800_h5.stats1.configuration_attrs:
-        item_check = getattr(pilatus800_h5.stats1, item)
+    for item in pilatus300.stats1.configuration_attrs:
+        item_check = getattr(pilatus300.stats1, item)
         item_check.kind = "omitted"
 
-    for item in pilatus800_h5.stats2.configuration_attrs:
-        item_check = getattr(pilatus800_h5.stats2, item)
+    for item in pilatus300.stats2.configuration_attrs:
+        item_check = getattr(pilatus300.stats2, item)
         item_check.kind = "omitted"
 
-    for item in pilatus800_h5.stats3.configuration_attrs:
-        item_check = getattr(pilatus800_h5.stats3, item)
+    for item in pilatus300.stats3.configuration_attrs:
+        item_check = getattr(pilatus300.stats3, item)
         item_check.kind = "omitted"
 
-    for item in pilatus800_h5.stats4.configuration_attrs:
-        item_check = getattr(pilatus800_h5.stats4, item)
+    for item in pilatus300.stats4.configuration_attrs:
+        item_check = getattr(pilatus300.stats4, item)
         item_check.kind = "omitted"
 
-    for item in pilatus800_h5.stats5.configuration_attrs:
-        item_check = getattr(pilatus800_h5.stats5, item)
+    for item in pilatus300.stats5.configuration_attrs:
+        item_check = getattr(pilatus300.stats5, item)
         item_check.kind = "omitted"
 
-    # for item in pilatus800_h5.tiff.configuration_attrs:
-    #     item_check = getattr(pilatus800_h5.tiff, item)
-    #     item_check.kind = "omitted"
-
-    for item in pilatus800_h5.cam.configuration_attrs:
-        item_check = getattr(pilatus800_h5.cam, item)
+    for item in pilatus300.tiff.configuration_attrs:
+        item_check = getattr(pilatus300.tiff, item)
         item_check.kind = "omitted"
 
-
-if Pilatus800_2_on == True:
-    pilatus8002_h5 = PilatusV33_h5("XF:11BMB-ES{Det:PIL800K2}:", name="pilatus800k-2")
-    pilatus8002_h5.h5.read_attrs = []
-
-    STATS_NAMES2M = ["stats1", "stats2", "stats3", "stats4"]
-    pilatus8002_h5.read_attrs = ["h5"] + STATS_NAMES2M
-    pilatus8002_h5.cam.ensure_nonblocking()
-
-    for stats_name in STATS_NAMES:
-        stats_plugin = getattr(pilatus8002_h5, stats_name)
-        stats_plugin.read_attrs = ["total"]
-
-    for item in pilatus8002_h5.stats1.configuration_attrs:
-        item_check = getattr(pilatus8002_h5.stats1, item)
+    for item in pilatus300.cam.configuration_attrs:
+        item_check = getattr(pilatus300.cam, item)
         item_check.kind = "omitted"
+else:
+    pilatus300 = "Pil300K-2_IS_NOT_WORKING"
 
-    for item in pilatus8002_h5.stats2.configuration_attrs:
-        item_check = getattr(pilatus8002_h5.stats2, item)
-        item_check.kind = "omitted"
+# HDF5 plugin section for Pilatus detectors
+if HDF5_on == True:
 
-    for item in pilatus8002_h5.stats3.configuration_attrs:
-        item_check = getattr(pilatus8002_h5.stats3, item)
-        item_check.kind = "omitted"
+    # Pilatus2M detector with HDF5 plugin section
+    if Pilatus2M_on == True:
 
-    for item in pilatus8002_h5.stats4.configuration_attrs:
-        item_check = getattr(pilatus8002_h5.stats4, item)
-        item_check.kind = "omitted"
+        pilatus2M_h5 = PilatusV33_h5("XF:11BMB-ES{Det:PIL2M}:", name="pilatus2m-1")
+        pilatus2M_h5.h5.read_attrs = []
+        pilatus2M_h5.cam.ensure_nonblocking()
 
-    for item in pilatus8002_h5.stats5.configuration_attrs:
-        item_check = getattr(pilatus8002_h5.stats5, item)
-        item_check.kind = "omitted"
+        STATS_NAMES2M = ["stats1", "stats2", "stats3", "stats4"]
+        pilatus2M_h5.read_attrs = ["h5"] + STATS_NAMES2M
+        # for stats_name in STATS_NAMES2M:
+        #     stats_plugin = getattr(pilatus2M_h5, stats_name)
+        #     stats_plugin.read_attrs = ["total"]
+        # pilatus2M_h5.cam.ensure_nonblocking()
+        # pilatus2M_h5.h5.ensure_blocking()
+        # pilatus2M_h5.stats3.total.kind = "hinted"
+        # pilatus2M_h5.stats4.total.kind = "hinted"
 
-    # for item in pilatus8002_h5.tiff.configuration_attrs:
-    #     item_check = getattr(pilatus8002_h5.tiff, item)
-    #     item_check.kind = "omitted"
+        for item in pilatus2M_h5.stats1.configuration_attrs:
+            item_check = getattr(pilatus2M_h5.stats1, item)
+            item_check.kind = "omitted"
 
-    for item in pilatus8002_h5.cam.configuration_attrs:
-        item_check = getattr(pilatus8002_h5.cam, item)
-        item_check.kind = "omitted"
+        for item in pilatus2M_h5.stats2.configuration_attrs:
+            item_check = getattr(pilatus2M_h5.stats2, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus2M_h5.stats3.configuration_attrs:
+            item_check = getattr(pilatus2M_h5.stats3, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus2M_h5.stats4.configuration_attrs:
+            item_check = getattr(pilatus2M_h5.stats4, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus2M_h5.stats5.configuration_attrs:
+            item_check = getattr(pilatus2M_h5.stats5, item)
+            item_check.kind = "omitted"
+
+        # for item in pilatus2M_h5.tiff.configuration_attrs:
+        #     item_check = getattr(pilatus2M_h5.tiff, item)
+        #     item_check.kind = "omitted"
+
+        for item in pilatus2M_h5.cam.configuration_attrs:
+            item_check = getattr(pilatus2M_h5.cam, item)
+            item_check.kind = "omitted"
+
+
+    # Pilatus800 detector with HDF5 plugin section
+    if Pilatus800_on == True:
+        pilatus800_h5 = PilatusV33_h5("XF:11BMB-ES{Det:PIL800K}:", name="pilatus800k-1")
+        pilatus800_h5.h5.read_attrs = []
+        pilatus800_h5.cam.ensure_nonblocking()
+
+        STATS_NAMES2M = ["stats1", "stats2", "stats3", "stats4"]
+        pilatus800_h5.read_attrs = ["h5"] + STATS_NAMES2M
+
+        for stats_name in STATS_NAMES:
+            stats_plugin = getattr(pilatus800_h5, stats_name)
+            stats_plugin.read_attrs = ["total"]
+
+        for item in pilatus800_h5.stats1.configuration_attrs:
+            item_check = getattr(pilatus800_h5.stats1, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus800_h5.stats2.configuration_attrs:
+            item_check = getattr(pilatus800_h5.stats2, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus800_h5.stats3.configuration_attrs:
+            item_check = getattr(pilatus800_h5.stats3, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus800_h5.stats4.configuration_attrs:
+            item_check = getattr(pilatus800_h5.stats4, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus800_h5.stats5.configuration_attrs:
+            item_check = getattr(pilatus800_h5.stats5, item)
+            item_check.kind = "omitted"
+
+        # for item in pilatus800_h5.tiff.configuration_attrs:
+        #     item_check = getattr(pilatus800_h5.tiff, item)
+        #     item_check.kind = "omitted"
+
+        for item in pilatus800_h5.cam.configuration_attrs:
+            item_check = getattr(pilatus800_h5.cam, item)
+            item_check.kind = "omitted"
+
+    # Pilatus800_2 detector with HDF5 plugin section
+    if Pilatus800_2_on == True:
+        pilatus8002_h5 = PilatusV33_h5("XF:11BMB-ES{Det:PIL800K2}:", name="pilatus800k-2")
+        pilatus8002_h5.h5.read_attrs = []
+
+        STATS_NAMES2M = ["stats1", "stats2", "stats3", "stats4"]
+        pilatus8002_h5.read_attrs = ["h5"] + STATS_NAMES2M
+        pilatus8002_h5.cam.ensure_nonblocking()
+
+        for stats_name in STATS_NAMES:
+            stats_plugin = getattr(pilatus8002_h5, stats_name)
+            stats_plugin.read_attrs = ["total"]
+
+        for item in pilatus8002_h5.stats1.configuration_attrs:
+            item_check = getattr(pilatus8002_h5.stats1, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus8002_h5.stats2.configuration_attrs:
+            item_check = getattr(pilatus8002_h5.stats2, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus8002_h5.stats3.configuration_attrs:
+            item_check = getattr(pilatus8002_h5.stats3, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus8002_h5.stats4.configuration_attrs:
+            item_check = getattr(pilatus8002_h5.stats4, item)
+            item_check.kind = "omitted"
+
+        for item in pilatus8002_h5.stats5.configuration_attrs:
+            item_check = getattr(pilatus8002_h5.stats5, item)
+            item_check.kind = "omitted"
+
+        # for item in pilatus8002_h5.tiff.configuration_attrs:
+        #     item_check = getattr(pilatus8002_h5.tiff, item)
+        #     item_check.kind = "omitted"
+
+        for item in pilatus8002_h5.cam.configuration_attrs:
+            item_check = getattr(pilatus8002_h5.cam, item)
+            item_check.kind = "omitted"
+
+
+
 # define the current pilatus detector: pilatus_name and _Epicsname, instead of
 # pilatus300 or pilatus2M
 # pilatus_name = pilatus800

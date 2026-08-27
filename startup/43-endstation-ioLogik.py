@@ -991,7 +991,7 @@ MFC = MassFlowControl()
 
 BLP = Potentiostats(name="BLP") #BioLogic Potentiostats
 
-if beamline_stage != 'default':
+if beamline_mode_config["enable_s4d"]:
     s4d = S4Dev(name="s4d")
 
 ic = ICDev(name="ic")
