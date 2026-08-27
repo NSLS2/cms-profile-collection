@@ -37,24 +37,14 @@ import asyncio
 Pilatus2M_on = True
 # Pilatus2M_on = 'h5'  # 'h5' for h5 mode
 Camera_on=True
-Pilatus300_on = False
 
 HDF5_on = False
 # ONLY 1 Pilatus800 will be turned on at the same time. changed by RL, 20210831
 #
-print("The current stage is {}".format(beamline_stage))
-# beamline_stage = 'default' #for using chamber
-# beamline_stage = 'open_MAXS' #for using the upstream stage
-if beamline_stage == "open_MAXS" or beamline_stage == "BigHuber":
-    Pilatus800_on = False
-    Pilatus800_2_on = True
-elif beamline_stage == "default":
-    Pilatus800_on = True
-    Pilatus800_2_on = False
-elif beamline_stage == "Temp":
-    Pilatus800_on = False
-    Pilatus800_2_on = False
-    Pilatus300_on = True
+print("The current beamline mode is {}".format(beamline_mode))
+Pilatus800_on = beamline_mode_config["pilatus800_on"]
+Pilatus800_2_on = beamline_mode_config["pilatus800_2_on"]
+Pilatus300_on = beamline_mode_config["pilatus300_on"]
 
 # Pilatus800_on = True
 # Pilatus800_2_on = True

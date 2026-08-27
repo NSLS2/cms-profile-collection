@@ -9,11 +9,11 @@
 # #    top = Cpt(EpicsMotor, '-Ax:T}Mtr')
 # #    bottom = Cpt(EpicsMotor, '-Ax:B}Mtr')
 
-# # beamline_stage = "default"  #for AB, please also change Smpl2-Y from 3... to -5 
-# # beamline_stage = 'open_MAXS'
-# # beamline_stage = 'BigHuber'
+# # beamline_mode = "default"  #for AB, please also change Smpl2-Y from 3... to -5 
+# # beamline_mode = 'open_MAXS'
+# # beamline_mode = 'BigHuber'
 
-# print('Beamline_stage = {}'.format(beamline_stage))
+# print('Beamline mode = {}'.format(beamline_mode))
 
 # # slits = Slits('XF:11BMA-OP{Slt:0', name='slits')
 
@@ -68,9 +68,9 @@
 # s5 = MotorCenterAndGap("XF:11BMB-OP{Slt:5", name="s5")
 
 # ## stages for sample positioning
-# # beamline_stage is defined by the current sample stage. 'default' is the regular vacuum chamber
+# # beamline_mode is defined by the current operating mode. 'default' is the regular vacuum chamber
 # #'open_WAXS' is the alternative stage position with Pilatus300k as the WAXS detector.
-# if beamline_stage == "default":
+# if beamline_mode == "default":
 #     smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:X}Mtr", name="smx")
 #     smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Z}Mtr", name="smy")
 #     # 2023-Sep-12, change sth and schi back to original setting
@@ -80,7 +80,7 @@
 #     # sth = EpicsMotor('XF:11BMB-ES{Chm:Smpl-Ax:chi}Mtr', name='sth')
 #     # schi = EpicsMotor('XF:11BMB-ES{Chm:Smpl-Ax:theta}Mtr', name='schi')
 
-# elif beamline_stage == "open_MAXS":
+# elif beamline_mode == "open_MAXS":
 #     smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:X}Mtr", name="smx")
 #     smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:Y}Mtr", name="smy")
 #     smz = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:Z}Mtr", name="smz")
@@ -90,7 +90,7 @@
 #     sth = EpicsMotor("XF:11BMB-ES{SM:2-Ax:theta}Mtr", name="sth")
 #     schi = EpicsMotor("XF:11BMB-ES{SM:2-Ax:chi}Mtr", name="schi")
 
-# elif beamline_stage == "BigHuber":
+# elif beamline_mode == "BigHuber":
 #     # Huber
 #     smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:Y}Mtr", name="smy")
 #     sth = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:theta}Mtr", name="sth")

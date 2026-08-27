@@ -1068,10 +1068,7 @@ class CMSBeam(object):
 
         self.bim3 = IonChamber_CMS(beam=self)
         self.bim4 = Scintillator_CMS()
-        if beamline_stage == "default":
-            self.beam_defining_slit = s4
-        else:
-            self.beam_defining_slit = s2
+        self.beam_defining_slit = globals()[beamline_mode_config["beam_defining_slit"]]
         self.bim5 = DiamondDiode_CMS()
         # self.bim6 = PointDiode_CMS()
 
