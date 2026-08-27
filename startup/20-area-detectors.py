@@ -864,7 +864,7 @@ else:
     pilatus2M = "Pil2MISNOTWORKING"
 
 if Pilatus300_on == True:
-    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-P300K:2}:", name="pilatus300k")
+    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-P300K:2}", name="pilatus300k")
     pilatus300.tiff.read_attrs = []
     pilatus300.stats3.total.kind = "hinted"
     pilatus300.stats4.total.kind = "hinted"

@@ -262,7 +262,7 @@ class CMS_TAXS_Detector(BeamlineDetector):
         )
 
         md_return["name"] = self.detector.name
-        md_return["epics_name"] = "{Det-PIL300K:2}"
+        md_return["epics_name"] = "{Det-P300K:2}"
 
         # if pilatus_name==pilatus300k:
         # md_return['x0_pix'] = round( x0 + (position_current_x-position_defined_x)/self.pixel_size , 2 )
