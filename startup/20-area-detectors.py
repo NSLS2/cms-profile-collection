@@ -389,6 +389,51 @@ class Pilatus2MV33(SingleTriggerV33, PilatusDetector):#, h5=False):
     def setExposureNumber(self, exposure_number, verbosity=3):
         yield from mv(self.cam.num_images, exposure_number)
 
+class Pilatus300V33(SingleTriggerV33, PilatusDetector):
+    cam = Cpt(PilatusDetectorCamV33, "cam1:")
+    image = Cpt(ImagePlugin, "image1:")
+    stats1 = Cpt(StatsPluginV33, "Stats1:")
+    stats2 = Cpt(StatsPluginV33, "Stats2:")
+    stats3 = Cpt(StatsPluginV33, "Stats3:")
+    stats4 = Cpt(StatsPluginV33, "Stats4:")
+    stats5 = Cpt(StatsPluginV33, "Stats5:")
+    roi1 = Cpt(ROIPlugin, "ROI1:")
+    roi2 = Cpt(ROIPlugin, "ROI2:")
+    roi3 = Cpt(ROIPlugin, "ROI3:")
+    roi4 = Cpt(ROIPlugin, "ROI4:")
+    proc1 = Cpt(ProcessPlugin, "Proc1:")
+
+    tiff = Cpt(
+        TIFFPluginWithFileStore,
+        suffix="TIFF1:",
+        write_path_template = "",
+    )
+
+    def stage(self, *args, **kwargs):
+        self.tiff.write_path_template = assets_path() + f'{self.name}/%Y/%m/%d/'
+        self.tiff.read_path_template = assets_path() + f'{self.name}/%Y/%m/%d/'
+        self.tiff.reg_root = assets_path() + f'{self.name}'
+        return super().stage(*args, **kwargs)
+
+    def setExposureTime(self, exposure_time, verbosity=3):
+        yield from mv(
+            self.cam.acquire_time,
+            exposure_time,
+            # self.cam.acquire_period,
+            # exposure_time + 0.1,
+        )
+        
+        # self.cam.acquire_time.put(exposure_time)
+        # self.cam.acquire_period.put(exposure_time+.1)
+        # caput('XF:11BMB-ES{Det:PIL2M}:cam1:AcquireTime', exposure_time)
+        # caput('XF:11BMB-ES{Det:PIL2M}:cam1:AcquirePeriod', exposure_time+0.1)
+
+    def setExposurePeriod(self, exposure_period, verbosity=3):
+        yield from mv(self.cam.acquire_period, exposure_period)
+
+    def setExposureNumber(self, exposure_number, verbosity=3):
+        yield from mv(self.cam.num_images, exposure_number)
+
 class PilatusV33_h5(SingleTriggerV33, PilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
     image = Cpt(ImagePlugin, "image1:")
@@ -819,7 +864,7 @@ else:
     pilatus2M = "Pil2MISNOTWORKING"
 
 if Pilatus300_on == True:
-    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-PIL300K:2}:", name="pilatus300k")
+    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-P300K:2}:", name="pilatus300k")
     pilatus300.tiff.read_attrs = []
     pilatus300.stats3.total.kind = "hinted"
     pilatus300.stats4.total.kind = "hinted"
