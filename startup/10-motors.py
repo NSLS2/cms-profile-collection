@@ -74,7 +74,7 @@ BEAMLINE_MODE_CONFIGS = {
         "pilatus800_on": False,
         "pilatus800_2_on": False,
         "pilatus300_on": True,
-        "beam_defining_slit": "s2",
+        "beam_defining_slit": "s4",
         "enable_s4d": True,
     },
 }

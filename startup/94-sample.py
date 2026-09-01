@@ -1974,10 +1974,10 @@ class Sample_Generic(CoordinateSystem):
 
         # md_current['detector_sequence_ID'] = caget('XF:11BMB-ES{Det:SAXS}:cam1:FileNumber_RBV')
         # md_current['detector_sequence_ID'] = caget('XF:11BMB-ES{}:cam1:FileNumber_RBV'.format(pilatus_Epicsname))
-        if get_beamline().detector[0].name == "pilatus300k-1":
-            md_current["detector_sequence_ID"] = caget("XF:11BMB-ES{Det:SAXS}:cam1:FileNumber_RBV")
-        elif get_beamline().detector[0].name == "pilatus2m-1":
-            md_current["detector_sequence_ID"] = caget("XF:11BMB-ES{Det:PIL2M}:cam1:FileNumber_RBV")
+        # if get_beamline().detector[0].name == "pilatus300k-1":
+        #     md_current["detector_sequence_ID"] = caget("XF:11BMB-ES{Det:SAXS}:cam1:FileNumber_RBV")
+        # elif get_beamline().detector[0].name == "pilatus2m-1":
+        #     md_current["detector_sequence_ID"] = caget("XF:11BMB-ES{Det:PIL2M}:cam1:FileNumber_RBV")
 
         md_current.update(get_beamline().get_md())
 
@@ -2328,8 +2328,8 @@ class Sample_Generic(CoordinateSystem):
                 self.handle_file(detector, extra=extra, verbosity=verbosity, **md)
                 # self.handle_file(detector, extra=extra, verbosity=verbosity)
 
-                # if datasecurity:
-                #     self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
+                if datasecurity:
+                    self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
 
     '''
     # def _expose_test(self, exposure_time=None, extra=None, handlefile=True, verbosity=3, poling_period=0.1, **md):
@@ -2458,12 +2458,16 @@ class Sample_Generic(CoordinateSystem):
     def handle_file(self, detector, extra=None, verbosity=3, subdirs=True, linksave=True, **md):
         subdir = ""
         if subdirs:
-            if detector.name == "pilatus300k-1" or detector.name == "pilatus800k-2":
+            #changed by RL, 20260831
+            if  detector.name == "pilatus800k-2":
                 subdir = "/maxs/raw/"
                 detname = "maxs"
             elif detector.name == "pilatus2m-1":
                 subdir = "/saxs/raw/"
                 detname = "saxs"
+            elif detector.name == "pilatus300k-1":
+                subdir = "/taxs/raw/"
+                detname = "taxs"
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"
@@ -2531,12 +2535,15 @@ class Sample_Generic(CoordinateSystem):
     def handle_file_datasecurity(self, detector, extra=None, verbosity=3, subdirs=True, linksave=True, **md):
         subdir = ""
         if subdirs:
-            if detector.name == "pilatus300k-1" or detector.name == "pilatus800k-2":
+            if detector.name == "pilatus800k-2":
                 subdir = "/maxs/raw/"
                 detname = "maxs"
             elif detector.name == "pilatus2m-1":
                 subdir = "/saxs/raw/"
                 detname = "saxs"
+            elif detector.name == "pilatus300k-1":
+                subdir = "/taxs/raw/"
+                detname = "taxs"
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"
@@ -3199,8 +3206,8 @@ class Sample_Generic(CoordinateSystem):
         for detector in get_beamline().detector:
             self.handle_file(detector, extra=extra, verbosity=verbosity, **md_current)
             # self.handle_file(detector, extra=extra, verbosity=verbosity)
-            # if datasecurity:
-            #     self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
+            if datasecurity:
+                self.handle_file_datasecurity(detector, extra=extra, verbosity=verbosity, **md)
 
         self.md["measurement_ID"] += 1
 
@@ -3943,7 +3950,7 @@ class Sample_Generic(CoordinateSystem):
         measure_type="series_measure",
         verbosity=3,
         fill_gaps=False,
-        datasecurity=False,
+        datasecurity=True,
         **md,
     ):
         """
@@ -4031,8 +4038,8 @@ class Sample_Generic(CoordinateSystem):
             print("handling the file names")
             print('Don\'t Ctrl +C !!')
             self.handle_fileseries(detector, num_frames=num_frames, extra=extra, verbosity=verbosity, **md)
-            # if datasecurity:
-            #     self.handle_fileseries_datasecurity(detector, num_frames=num_frames, extra=extra, verbosity=verbosity, **md)
+            if datasecurity:
+                self.handle_fileseries_datasecurity(detector, num_frames=num_frames, extra=extra, verbosity=verbosity, **md)
 
     # This method is not in use
     def _series_measure(
@@ -4318,7 +4325,7 @@ class Sample_Generic(CoordinateSystem):
     def handle_fileseries_datasecurity(self, detector, num_frames=None, extra=None, verbosity=3, subdirs=True, **md):
         subdir = ""
         if subdirs:
-            if detector.name == "pilatus300k-1" or detector.name == "pilatus800k-2":
+            if detector.name == "pilatus800k-2":
                 subdir = "/maxs/raw/"
                 detname = "maxs"
                 print("{} data handling".format(detector.name))
@@ -4326,6 +4333,9 @@ class Sample_Generic(CoordinateSystem):
                 subdir = "/saxs/raw/"
                 detname = "saxs"
                 print("pilatus2M data handling")
+            elif detector.name == "pilatus300k-1":
+                subdir = "/taxs/raw/"
+                detname = "taxs"
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"
@@ -4418,7 +4428,7 @@ class Sample_Generic(CoordinateSystem):
     def handle_fileseries(self, detector, num_frames=None, extra=None, verbosity=3, subdirs=True, **md):
         subdir = ""
         if subdirs:
-            if detector.name == "pilatus300k-1" or detector.name == "pilatus800k-2":
+            if  detector.name == "pilatus800k-2":
                 subdir = "/maxs/raw/"
                 detname = "maxs"
                 print("{} data handling".format(detector.name))
@@ -4426,6 +4436,10 @@ class Sample_Generic(CoordinateSystem):
                 subdir = "/saxs/raw/"
                 detname = "saxs"
                 print("pilatus2M data handling")
+            elif detector.name == "pilatus300k-1":
+                subdir = "/taxs/raw/"
+                detname = "taxs"
+                print("pilatus300k data handling")
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"

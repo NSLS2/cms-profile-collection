@@ -381,7 +381,7 @@ class Pilatus2MV33(SingleTriggerV33, PilatusDetector):#, h5=False):
 
 class Pilatus300V33(SingleTriggerV33, PilatusDetector):
     cam = Cpt(PilatusDetectorCamV33, "cam1:")
-    image = Cpt(ImagePlugin, "image1:")
+    # image = Cpt(ImagePlugin, "image1:")
     stats1 = Cpt(StatsPluginV33, "Stats1:")
     stats2 = Cpt(StatsPluginV33, "Stats2:")
     stats3 = Cpt(StatsPluginV33, "Stats3:")
@@ -854,7 +854,7 @@ else:
     pilatus2M = "Pil2MISNOTWORKING"
 
 if Pilatus300_on == True:
-    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-P300K:2}", name="pilatus300k")
+    pilatus300 = Pilatus300V33("XF:11BM-ES{Det-P300K:2}", name="pilatus300k-1")
     pilatus300.tiff.read_attrs = []
     pilatus300.stats3.total.kind = "hinted"
     pilatus300.stats4.total.kind = "hinted"
