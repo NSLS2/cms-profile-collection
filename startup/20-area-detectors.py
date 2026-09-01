@@ -38,7 +38,7 @@ Pilatus2M_on = True
 # Pilatus2M_on = 'h5'  # 'h5' for h5 mode
 Camera_on=True
 
-HDF5_on = False
+HDF5_on = True
 # ONLY 1 Pilatus800 will be turned on at the same time. changed by RL, 20210831
 #
 print("The current beamline mode is {}".format(beamline_mode))

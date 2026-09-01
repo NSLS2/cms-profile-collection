@@ -184,6 +184,8 @@ def with_tiling(tiling_mode=None):
                         motor_args += [WAXSy, WAXSy_o + tile["WAXSy"], WAXSx, WAXSx_o + tile["WAXSx"]]
                     if pilatus8002 in cms.detector:
                         motor_args += [MAXSy, MAXSy_o + tile["MAXSy"], MAXSx, MAXSx_o + tile["MAXSx"]]
+                    if pilatus300 in cms.detector:
+                        motor_args += [WAXSy, WAXSy_o + tile["WAXSy"], WAXSx, WAXSx_o + tile["WAXSx"]]
                     if motor_args:
                         RE(bps.mv(*motor_args))
 
@@ -214,6 +216,8 @@ def with_tiling(tiling_mode=None):
                     restore_args += [WAXSy, WAXSy_o, WAXSx, WAXSx_o]
                 if pilatus8002 in cms.detector:
                     restore_args += [MAXSy, MAXSy_o, MAXSx, MAXSx_o]
+                if pilatus300 in cms.detector:
+                        motor_args += [WAXSy, WAXSy_o + tile["WAXSy"], WAXSx, WAXSx_o + tile["WAXSx"]]
                 if restore_args:
                     RE(bps.mv(*restore_args))
                 RE.md.pop("tiling", None)
@@ -2466,8 +2470,8 @@ class Sample_Generic(CoordinateSystem):
                 subdir = "/saxs/raw/"
                 detname = "saxs"
             elif detector.name == "pilatus300k-1":
-                subdir = "/taxs/raw/"
-                detname = "taxs"
+                subdir = "/waxs_temp/raw/"
+                detname = "waxs_temp"
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"
@@ -2542,8 +2546,8 @@ class Sample_Generic(CoordinateSystem):
                 subdir = "/saxs/raw/"
                 detname = "saxs"
             elif detector.name == "pilatus300k-1":
-                subdir = "/taxs/raw/"
-                detname = "taxs"
+                subdir = "/waxs_temp/raw/"
+                detname = "waxs_temp"
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"
@@ -4334,8 +4338,8 @@ class Sample_Generic(CoordinateSystem):
                 detname = "saxs"
                 print("pilatus2M data handling")
             elif detector.name == "pilatus300k-1":
-                subdir = "/taxs/raw/"
-                detname = "taxs"
+                subdir = "waxs_temp/raw/"
+                detname = "waxs_temp"
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
                 detname = "waxs"
@@ -4437,8 +4441,8 @@ class Sample_Generic(CoordinateSystem):
                 detname = "saxs"
                 print("pilatus2M data handling")
             elif detector.name == "pilatus300k-1":
-                subdir = "/taxs/raw/"
-                detname = "taxs"
+                subdir = "/waxs_temp/raw/"
+                detname = "waxs_temp"
                 print("pilatus300k data handling")
             elif detector.name == "pilatus800k-1":
                 subdir = "/waxs/raw/"
