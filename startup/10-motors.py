@@ -77,6 +77,27 @@ BEAMLINE_MODE_CONFIGS = {
         "beam_defining_slit": "s4",
         "enable_s4d": True,
     },
+    # Test mode that enable all motors and detectors, use with caution!
+    "Test": {
+        "sample_motors": {
+            "smx": "XF:11BMB-ES{Chm:Smpl-Ax:X}Mtr",
+            "smy": "XF:11BMB-ES{Chm:Smpl-Ax:Y}Mtr",
+            "sth": "XF:11BMB-ES{Chm:Smpl-Ax:theta}Mtr",
+            "schi": "XF:11BMB-ES{Chm:Smpl-Ax:chi}Mtr",
+            "smx2": "XF:11BMB-ES{Chm:Smpl2-Ax:X}Mtr",
+            "smy2": "XF:11BMB-ES{Chm:Smpl2-Ax:Y}Mtr",
+            "sth2": "XF:11BMB-ES{SM:2-Ax:theta}Mtr",
+            "schi2": "XF:11BMB-ES{SM:2-Ax:chi}Mtr",
+            "smy3": "XF:11BMB-ES{Chm:Smpl3-Ax:Y}Mtr",
+            "sth3": "XF:11BMB-ES{Chm:Smpl3-Ax:theta}Mtr",
+            "schi3": "XF:11BMB-ES{Chm:Smpl3-Ax:chi}Mtr",
+        },
+        "pilatus800_on": True,
+        "pilatus800_2_on": True,
+        "pilatus300_on": True,
+        "beam_defining_slit": "s4",
+        "enable_s4d": True,
+    },
 }
 BEAMLINE_MODES = tuple(BEAMLINE_MODE_CONFIGS)
 
