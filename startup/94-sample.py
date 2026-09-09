@@ -217,7 +217,7 @@ def with_tiling(tiling_mode=None):
                 if pilatus8002 in cms.detector:
                     restore_args += [MAXSy, MAXSy_o, MAXSx, MAXSx_o]
                 if pilatus300 in cms.detector:
-                        motor_args += [WAXSy, WAXSy_o + tile["WAXSy"], WAXSx, WAXSx_o + tile["WAXSx"]]
+                    restore_args += [WAXSy, WAXSy_o, WAXSx, WAXSx_o]
                 if restore_args:
                     RE(bps.mv(*restore_args))
                 RE.md.pop("tiling", None)
@@ -4025,8 +4025,9 @@ class Sample_Generic(CoordinateSystem):
         # get_beamline().beam._test_on(wait_time=0.1)
         try:
             RE(count(get_beamline().detector, md=md_current))
-        except:
+        except Exception as e:
             print('Series Scan Interupted! Handling Files.')
+            print(str(e))
             get_beamline().beam.off()
         else:
             print('Series Scan Finished! Handling Files.')
@@ -4403,7 +4404,7 @@ class Sample_Generic(CoordinateSystem):
 
             # print(f"  Symlinks will be created at: {proposal_path()}experiments/{link_name}")
 
-            savename = self.get_savename(savename_extra=extra)
+            # savename = self.get_savename(savename_extra=extra)
             link_name = savename + '_' + str(RE.md['scan_id']-1) + '_' + detname + '.tiff'
             # savename = md["filename"]
             # link_name = md["filename"] + '_' + str(RE.md['scan_id']-1) + '_' + detname + '.tiff'

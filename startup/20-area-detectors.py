@@ -176,6 +176,7 @@ class PilatusDetectorCamV33(PilatusDetectorCam):
     """This is used to update the standard prosilica to AD33."""
 
     wait_for_plugins = Cpt(EpicsSignal, "WaitForPlugins", string=True, kind="config")
+    file_name = Cpt(EpicsSignalWithRBV, "FileName", string=True, kind="config")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -403,6 +404,7 @@ class Pilatus300V33(SingleTriggerV33, PilatusDetector):
         self.tiff.write_path_template = assets_path() + f'{self.name}/%Y/%m/%d/'
         self.tiff.read_path_template = assets_path() + f'{self.name}/%Y/%m/%d/'
         self.tiff.reg_root = assets_path() + f'{self.name}'
+        self.cam.file_name.set(str(uuid.uuid4()))
         return super().stage(*args, **kwargs)
 
     def setExposureTime(self, exposure_time, verbosity=3):
