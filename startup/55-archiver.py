@@ -352,6 +352,15 @@ def archived(output_file, pv_list=None, dt=0.1, verbose=True):
 #     "XF:11BM-ES:{LINKAM}:TST_FORCE",       # Force
 #     "XF:11BM-ES:{LINKAM}:TST_STRESS",      # Stress
 # ]
-# @archived("linkam_archiver_record.csv", pv_list=linkam_pvs, archiver_instance=ARV)
+# @archived("linkam_archiver_record.csv", pv_list=linkam_pvs)
 # def run_linkam_steps():
 #     LThermal.run_step(0)
+
+# custom_pvs = [
+#     "XF:11BMB-ES{Chm:Smpl-Ax:X}Mtr.RBV",            # X
+#     "XF:11BMB-ES{Chm:Smpl-Ax:Y}Mtr.RBV",       # Y
+#     "XF:11BMB-ES{Chm:Smpl-Ax:theta}Mtr.RBV",      # theta
+# ]
+# @archived("linkam_archiver_record.csv", pv_list=custom_pvs)
+# def run_custom_steps():
+#     sam.measureIncidentAngles(angles = [0, 0.05, 0.1], exposure_time = 1)
