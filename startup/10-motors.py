@@ -391,13 +391,14 @@ s0 = Blades("XF:11BMA-OP{Slt:0", name="s0")
 # s1 = MotorCenterAndGap("XF:11BMB-OP{Slt:1", name="s1")
 
 # Option 2: Custom config file for each slit (recommended for separate tracking)
-s1 = MotorCenterAndGap("XF:11BMB-OP{Slt:1", name="s1", config_file='cfg/s1_config.cfg')
-s2 = MotorCenterAndGap("XF:11BMB-OP{Slt:2", name="s2", config_file='cfg/s2_config.cfg')
-s3 = MotorCenterAndGap("XF:11BMB-OP{Slt:3", name="s3", config_file='cfg/s3_config.cfg')
-s4 = MotorCenterAndGap("XF:11BMB-OP{Slt:4", name="s4", config_file='cfg/s4_config.cfg')
-s5 = MotorCenterAndGap("XF:11BMB-OP{Slt:5", name="s5", config_file='cfg/s5_config.cfg')
+s1 = MotorCenterAndGap("XF:11BMB-OP{Slt:1", name="s1", config_file=bluesky_path('cfg/s1_config.cfg'))
+s2 = MotorCenterAndGap("XF:11BMB-OP{Slt:2", name="s2", config_file=bluesky_path('cfg/s2_config.cfg'))
+s3 = MotorCenterAndGap("XF:11BMB-OP{Slt:3", name="s3", config_file=bluesky_path('cfg/s3_config.cfg'))
+s4 = MotorCenterAndGap("XF:11BMB-OP{Slt:4", name="s4", config_file=bluesky_path('cfg/s4_config.cfg'))
+s5 = MotorCenterAndGap("XF:11BMB-OP{Slt:5", name="s5", config_file=bluesky_path('cfg/s5_config.cfg'))
 
-# Practical s4 examples (useful copy-paste snippets):
+'''
+# Example Usages:
 # The file cfg/s4_config.cfg contains named sets: 'trans_inair', 'GI_inair',
 # 'trans_vacuum', and 'GI_vacuum'. Use these names with get/goto.
 # Show current positions:
@@ -412,9 +413,10 @@ s5 = MotorCenterAndGap("XF:11BMB-OP{Slt:5", name="s5", config_file='cfg/s5_confi
 # Single-axis moves (no RE required):
 #     s4.mov('xc', -1.48)    # absolute
 #     s4.movr('yg', 0.05)    # relative
+'''
 
 # Option 3: Share one config file for all slits (if you prefer centralized tracking)
-# slits_config_file = 'cfg/slits_config.cfg'
+# slits_config_file = bluesky_path('cfg/slits_config.cfg')
 # s1 = MotorCenterAndGap("XF:11BMB-OP{Slt:1", name="s1", config_file=slits_config_file)
 # s2 = MotorCenterAndGap("XF:11BMB-OP{Slt:2", name="s2", config_file=slits_config_file)
 # s3 = MotorCenterAndGap("XF:11BMB-OP{Slt:3", name="s3", config_file=slits_config_file)
@@ -494,10 +496,25 @@ armr = EpicsMotor("XF:11BMB-ES{ATT:1-Ax:X}Mtr", name="armr")
 
 
 ## stages for detectors
-## currently not working. The new pilatus800k is sitting on a stage with manual movement
-# DETx = EpicsMotor('XF:11BMB-ES{Det:Stg-Ax:X}Mtr', name='DETx')
-# DETy =  EpicsMotor('XF:11BMB-ES{Det:Stg-Ax:Y}Mtr', name='DETy')
-# WAXSx = EpicsMotor('XF:11BMB-ES{Det:WAXS-Ax:X}Mtr', name='WAXSx')
+
+class DetectorMotors(Device, Configurable):
+    "Detector motors that control the X and Y positions"
+    x = Cpt(EpicsMotor, "-Ax:X}Mtr")
+    y = Cpt(EpicsMotor, "-Ax:Y}Mtr")
+    
+    _config_motors = ['x', 'y']
+    
+    def __init__(self, *args, config_file=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if config_file is not None:
+            self._config_file = Path(config_file)
+        self._positions = self._load_config()
+
+WAXS = DetectorMotors("XF:11BMB-ES{Det:WAXS", name="WAXS", config_file=bluesky_path('cfg/waxs_config.cfg'))
+SAXS = DetectorMotors("XF:11BMB-ES{Det:SAXS", name="SAXS", config_file=bluesky_path('cfg/saxs_config.cfg'))
+MAXS = DetectorMotors("XF:11BMB-ES{Det:MAXS", name="MAXS", config_file=bluesky_path('cfg/maxs_config.cfg'))
+
+
 WAXSx = EpicsMotor("XF:11BMB-ES{Det:WAXS-Ax:X}Mtr", name="WAXSx")
 WAXSy = EpicsMotor("XF:11BMB-ES{Det:WAXS-Ax:Y}Mtr", name="WAXSy")
 WAXSz = EpicsMotor("XF:11BMB-ES{Det:WAXS-Ax:Z}Mtr", name="WAXSz")
