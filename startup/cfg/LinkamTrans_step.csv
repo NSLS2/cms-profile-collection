@@ -1,3 +1,8 @@
-stepNo,temperature,rate,wait_time
+# LinkamTrans_step.csv - thermal-only step program
+# stepNo           : step index, 0-based, sequential
+# temperature(C)   : target temperature setpoint
+# ramp_rate(C/min) : temperature ramp rate
+# duration(s)      : total time budget for this step (covers ramping to the setpoint
+#                     plus any time left over waiting at/near it, before advancing)
+stepNo,temperature(C),ramp_rate(C/min),duration(s)
 0,150,30,840
-

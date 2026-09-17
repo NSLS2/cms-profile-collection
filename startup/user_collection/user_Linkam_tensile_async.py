@@ -47,28 +47,28 @@ if False:
     RE.install_suspender(sus)
 
 # Set experiment directories and calibration
-RE.md['experiment_alias_directory'] = 'SWu/ShuyiXie/1_Tensile_Cycling'
-RE.md["userpy_alias_directory"] = '/nsls2/data/cms/shared/config/bluesky/profile_collection/users/2026-2/beamline/SWu/'
+RE.md['experiment_alias_directory'] = 'SWu/1_JLin/Tensile'
+RE.md["userpy_alias_directory"] = '/nsls2/data/cms/shared/config/bluesky/profile_collection/users/2026-3/beamline/SWu/'
 # cms.SAXS.setCalibration([755, 1081], 5.03, [-65, -73])  #2025 Aug 5m
 cms.SAXS.setCalibration([742, 1081], 5.03, [-65, -73]) 
 
 
 
-def swaxs_on():
-    detselect([pilatus2M, pilatus800])
-    WAXSx.move(-192)        
-    WAXSy.move(16)    
+# def swaxs_on():
+#     detselect([pilatus2M, pilatus800])
+#     WAXSx.move(-192)        
+#     WAXSy.move(16)    
 
 
-def saxs_on():
-    detselect(pilatus2M)
-    WAXSx.move(-227)        
-    WAXSy.move(27)   
+# def saxs_on():
+#     detselect(pilatus2M)
+#     WAXSx.move(-227)        
+#     WAXSy.move(27)   
 
-def waxs_on():
-    detselect(pilatus800)
-    WAXSx.move(-227)        
-    WAXSy.move(27)   
+# def waxs_on():
+#     detselect(pilatus800)
+#     WAXSx.move(-227)        
+#     WAXSy.move(27)   
 
 
 #cms.setDirectBeamROI()
@@ -369,19 +369,19 @@ class Sample(SampleTSAXS):
             # Replace custom measurement plan here
 
 
-            # self.measure(exposure_time, *args, **kwargs)
+            self.measure(exposure_time, *args, **kwargs)
 
             # dynamic plan for scan x axis
             # x pos change as a function of tensile stage streth length.
-            L0 = 2.975 # The initial tensile stage pos reading, unit in mm
-            dL = LTensile.POS.get()/1000 - L0 # the change of the tensile stage length, unit in mm
-            sam_length = 5.99 # the length of the sample, unit in mm
-            sam_ROI_0 = 0.15 # the initial region of interest on the sample, unit in mm
-            sam_ROI = sam_ROI_0 * (1 + dL / L0) # the change of the region of interest on the sample, unit in mm
+            # L0 = 2.975 # The initial tensile stage pos reading, unit in mm
+            # dL = LTensile.POS.get()/1000 - L0 # the change of the tensile stage length, unit in mm
+            # sam_length = 5.99 # the length of the sample, unit in mm
+            # sam_ROI_0 = 0.15 # the initial region of interest on the sample, unit in mm
+            # sam_ROI = sam_ROI_0 * (1 + dL / L0) # the change of the region of interest on the sample, unit in mm
 
-            for xpos in np.arange(-sam_ROI, sam_ROI+0.01, sam_ROI):
-                self.xabs(xpos)
-                self.measure(exposure_time, *args, **kwargs)
+            # for xpos in np.arange(-sam_ROI, sam_ROI+0.01, sam_ROI):
+            #     self.xabs(xpos)
+                # self.measure(exposure_time, *args, **kwargs)
 
             # Custom plan for scan y axis
             # for ypos in [-0.3, 0, 0.3]:
