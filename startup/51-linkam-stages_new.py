@@ -648,6 +648,22 @@ class LinkamTensile(LinkamThermal, PositionerBase):
         if value is not None:
             self._set_position(value)
 
+    def trace_tensile_status(self):
+        """Print raw and decoded tensile-status updates; return its subscription token."""
+        def _trace(value=None, old_value=None, timestamp=None, **kwargs):
+            bits = TensileStatus(int(value))
+            print(f"[LINKAM-TENSILE] TST_STATUS {old_value!r} -> {int(bits)} "
+                  f"(zero={bool(bits & TensileStatus.ZERO_LIMIT)}, "
+                  f"ref={bool(bits & TensileStatus.REF_LIMIT)}, "
+                  f"done={bool(bits & TensileStatus.MOVE_DONE)}, "
+                  f"position={self.POS.get():.3f}um)")
+
+        return self.status_code_Tensile.subscribe(_trace, run=True)
+
+    def stop_tracing_tensile_status(self, token):
+        """Stop a status trace started by trace_tensile_status()."""
+        self.status_code_Tensile.unsubscribe(token)
+
     def statusTensile(self, verbosity=3):
         text = f"\nCurrent temperature = {self.temperature():.1f}, setpoint = {self.temperature_setpoint.get():.1f}\n\n"
 
@@ -723,29 +739,28 @@ class LinkamTensile(LinkamThermal, PositionerBase):
             return status
 
         self._require_velocity(velocity)
+        command_time = time.monotonic()
         self._movr(relative_pos, velocity=velocity, verbosity=0)
 
-        seen_busy = False
+        # TST_STATUS lags the real motor state by ~1s (observed on hardware),
+        # so a "done" reading right after commanding the move is not yet
+        # trustworthy - it may just be the leftover pre-move value. Only
+        # accept it once we've actually seen the busy state this move caused,
+        # or once that lag has elapsed (a move too fast for the status word
+        # to ever report busy).
+        STATUS_LAG = 1.5  # seconds; margin over the observed ~1s IOC status delay
 
-        def _check_done(value=None, **kwargs):
-            nonlocal seen_busy
-            bits = TensileStatus(int(value))
-            if bits & (TensileStatus.ZERO_LIMIT | TensileStatus.REF_LIMIT):
-                self.status_code_Tensile.clear_sub(_check_done)
-                status.set_finished()
-                return
-            if not (bits & TensileStatus.MOVE_DONE):
-                # controller reports busy - now we can trust a later "done" reading
-                seen_busy = True
-                return
-            # bits report "done", but only trust that if we've actually seen the
-            # controller report busy in between - otherwise this is the stale
-            # "done" value left over from before this move was commanded
-            if seen_busy:
-                self.status_code_Tensile.clear_sub(_check_done)
-                status.set_finished()
+        def _poll_done():
+            seen_busy = False
+            while not status.done:
+                if not self.move_done:
+                    seen_busy = True
+                elif seen_busy or (time.monotonic() - command_time) > STATUS_LAG:
+                    status.set_finished()
+                    return
+                time.sleep(0.05)
 
-        self.status_code_Tensile.subscribe(_check_done, run=True)
+        threading.Thread(target=_poll_done, daemon=True).start()
 
         if wait:
             status.wait()
