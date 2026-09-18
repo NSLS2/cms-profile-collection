@@ -68,21 +68,22 @@ print(f'Loading {__file__}')
 
 #restartWAXS after pumping the vacuum below 0.5mbar
 #change to Pilatus300, 2026C2, RL
-def startWAXS():
+def startWAXS(wait_time =10):
 
     caput(' XF:11BMB-VA{Chm:Det}UserButton', 1)
 
 
     # #telnet and restart camserver
     # restartWAXS()
+    time.sleep(wait_time)
 
     # swtich to monitor detector status by CSS
     caput("XF:11BM-CT{Det-P300K:2}Camserver:Restart", 1)
     #set exposure time twice to garantee the EPICS connection
-    pilatus300.cam.acquire_time.set(1.3)
-    time.sleep(3)
-    pilatus300.cam.acquire_time.set(1.7)
-
+    # pilatus300.cam.acquire_time.set(1.3)
+    time.sleep(5)
+    # pilatus300.cam.acquire_time.set(1.7)
+    caput("XF:11BM-ES{Det-P300K:2}:SysReset", 1)
 
 
         

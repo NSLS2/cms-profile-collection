@@ -205,6 +205,8 @@ class PilatusV33(SingleTriggerV33, PilatusDetector):
     roi4 = Cpt(ROIPlugin, "ROI4:")
     proc1 = Cpt(ProcessPlugin, "Proc1:")
 
+    ioc_restart = Cpt(EpicsSignal, ":SysReset")
+
     tiff = Cpt(
         TIFFPluginWithFileStore,
         suffix="TIFF1:",
