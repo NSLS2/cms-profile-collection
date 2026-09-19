@@ -162,7 +162,7 @@ class Configurable:
     
     def goto(self, name):
         """
-        Load a saved position and move all motors there.
+        Load a saved position and move all motors there through the RunEngine.
         
         Args:
             name: Position name to load and move to
@@ -170,17 +170,27 @@ class Configurable:
         Usage:
             s4.goto('open')  # Load and move s4 to 'open' position
         """
+        RE(self._goto(name))
+
+    def _goto(self, name):
+        """Bluesky plan implementation of goto()."""
         positions_dict = self._load_config()
         entries = positions_dict.get(name)
         if entries and isinstance(entries, list):
             target_positions = entries[-1]  # Get latest entry
             print(f"Moving '{self.name}' to position '{name}'...")
+            yield from bps.sleep(2)  # Small delay before moving motors, wait for user confirmation
             for motor_name in self._config_motors:
-                if (hasattr(self, motor_name) and 
-                    motor_name in target_positions):
-                    motor = getattr(self, motor_name)
-                    target_value = target_positions[motor_name]
-                    motor.move(target_value)
+                if not hasattr(self, motor_name):
+                    print(f"  {motor_name}: not available")
+                    continue
+                if motor_name not in target_positions:
+                    print(f"  {motor_name}: no saved value; unchanged")
+                    continue
+                motor = getattr(self, motor_name)
+                target_value = target_positions[motor_name]
+                print(f"  {motor_name}: {motor.position} -> {target_value}")
+                yield from bps.mv(motor, target_value)
             self.show_position()
         else:
             print(f"No saved position found for '{name}'.")
@@ -447,7 +457,7 @@ fpn = EpicsMotor("XF:11BM-ES{Mdrive-Ax:1}Mtr", name="fpn")
 fpr = EpicsMotor("XF:11BM-ES{Mdrive-Ax:2}Mtr", name="fpr")
 
 # goniometer
-smy2 = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Y2}Mtr", name="smy2")
+# smy2 = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Y2}Mtr", name="smy2")
 sphi = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:phi}Mtr", name="sphi")
 
 

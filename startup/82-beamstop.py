@@ -5,12 +5,14 @@ import time
 from pathlib import Path
 from datetime import datetime
 
-folder = '/home/xf11bm/.ipython/profile_collection/startup/'
+# folder = '/home/xf11bm/.ipython/profile_collection/startup/'
 
 class Beamstop:
-    def __init__(self, name, config_file = folder + 'beamstop_config.cfg'):
+    default_config_file = bluesky_path('cfg/beamstop_config.cfg')
+
+    def __init__(self, name, config_file=None):
         self.name = name
-        self.config_file = Path(config_file)
+        self.config_file = Path(config_file or self.default_config_file)
         self.positions = self._load_config()
         self._sync()
         self.load()
@@ -21,12 +23,12 @@ class Beamstop:
         self.bsphi = bsphi.position
 
     @classmethod
-    def get(cls, name, config_file  = folder + 'beamstop_config.cfg'):
+    def get(cls, name, config_file=None):
         print(f"Set current beamstop to '{name}' without moving.")
         return cls(name, config_file=config_file)
 
     @classmethod
-    def goto(cls, name, config_file  = folder + 'beamstop_config.cfg'):
+    def goto(cls, name, config_file=None):
         bs = cls(name, config_file=config_file)
         # bs._move()
         RE(bs._move())
@@ -173,8 +175,8 @@ class Beamstop:
         print(f"  bsphi = {self.bsphi}")
 
     @staticmethod
-    def clear_cfg(config_file='/home/xf11bm/.ipython/profile_collection/startup/beamstop_config.cfg'):
-        path = Path(config_file)
+    def clear_cfg(config_file=None):
+        path = Path(config_file or Beamstop.default_config_file)
         if path.exists():
             with open(path, 'r') as f:
                 data = json.load(f)
