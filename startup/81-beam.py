@@ -3202,6 +3202,8 @@ class CMS_Beamline(Beamline):
             )
 
     def setMetadata(self, verbosity=3):
+        # This function will be DEPRECATED in the future.
+        print("Warning: setMetadata() is deprecated and will be removed in the future.")
         """Guides the user through setting some of the required and recommended
         meta-data fields."""
 

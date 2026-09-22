@@ -28,9 +28,10 @@
 #
 ################################################################################
 
-
-# custmer-made samples.
 class SampleTSAXS_Generic(Sample_Generic):
+    def __init__(self, name, base=None, **md):
+        super().__init__(name=name, base=base, **md)
+
     ################# Direct beam transmission measurement ####################
     def intMeasure(self, output_file, exposure_time):
         """Measure the transmission intensity of the sample by ROI4.
@@ -151,6 +152,7 @@ class SampleGISAXS_Generic(Sample_Generic):
         self, angles=None, exposure_time=None, extra=None, tiling=None, verbosity=3, **md
     ):
         # Backward-compatible alias; behavior now centralized in measureIncidentAngles.
+        print("This function will be deprecated, use measureIncidentAngles(angles=angles, exposure_time=exposure_time, extra=extra, tiling=tiling, verbosity=verbosity, **md) instead")
         self.measureIncidentAngles(
             angles=angles,
             exposure_time=exposure_time,
@@ -159,377 +161,6 @@ class SampleGISAXS_Generic(Sample_Generic):
             verbosity=verbosity,
             **md,
         )
-
-
-    # def measureIncidentAngles_Stitch(self, angles=None, exposure_time=None, extra=None, tiling=None, verbosity=3, **md):
-
-    #     # measure the incident angles first and then change the tiling features.
-
-    #     if tiling == None:
-    #         if angles is None:
-    #             angles = self.incident_angles_default
-    #         for angle in angles:
-    #             self.measureIncidentAngle(angle, exposure_time=exposure_time, extra=extra, tiling=tiling, **md)
-
-    #     elif tiling == "ygaps":
-    #         if angles is None:
-    #             angles = self.incident_angles_default
-
-
-    #         # pos1
-
-
-    #         for angle in angles:
-    #             self.thabs(angle)
-    #             while sth.moving == True:
-    #                 time.sleep(0.1)
-    #             time.sleep(0.5)
-    #             extra_current = "pos1" if extra is None else "{}_pos1".format(extra)
-    #             md["detector_position"] = "lower"
-    #             self.measure_single(
-
-
-    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
-
-
-    #             )
-
-    #         # pos2
-
-
-    #         SAXSy_o = SAXSy.user_readback.value
-
-
-    #         SAXSx_o = SAXSx.user_readback.value
-
-
-    #         WAXSy_o = WAXSy.user_readback.value
-
-
-    #         WAXSx_o = WAXSx.user_readback.value
-
-
-    #         MAXSy_o = MAXSy.user_readback.value
-
-
-    #         if pilatus2M in cms.detector:
-
-
-    #             SAXSy.move(SAXSy_o + 5.16)
-
-
-    #         if pilatus800 in cms.detector:
-
-
-    #             WAXSy.move(WAXSy_o + 5.16)
-
-
-    #         if pilatus8002 in cms.detector:
-
-
-    #             MAXSy.move(MAXSy_o + 5.16)
-
-
-
-
-
-    #         for angle in angles:
-
-
-    #             self.thabs(angle)
-
-
-    #             while sth.moving == True:
-
-
-    #                 time.sleep(0.1)
-
-
-    #             time.sleep(0.5)
-
-
-
-
-
-    #             extra_current = "pos2" if extra is None else "{}_pos2".format(extra)
-
-
-    #             md["detector_position"] = "upper"
-
-
-    #             self.measure_single(
-
-
-    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
-
-
-    #             )
-
-
-
-
-
-    #         if SAXSy.user_readback.value != SAXSy_o:
-
-
-    #             SAXSy.move(SAXSy_o)
-
-
-    #         if WAXSy.user_readback.value != WAXSy_o:
-
-
-    #             WAXSy.move(WAXSy_o)
-
-
-    #         if MAXSy.user_readback.value != MAXSy_o:
-
-
-    #             MAXSy.move(MAXSy_o)
-
-
-
-
-
-    #     elif tiling == "xygaps":
-
-
-    #         if angles is None:
-
-
-    #             angles = self.incident_angles_default
-
-
-    #         # pos1
-
-
-    #         for angle in angles:
-
-
-    #             self.thabs(angle)
-
-
-    #             time.sleep(0.5)
-
-
-    #             extra_current = "pos1" if extra is None else "{}_pos1".format(extra)
-
-
-    #             md["detector_position"] = "lower_left"
-
-
-    #             self.measure_single(
-
-
-    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
-
-
-    #             )
-
-
-
-
-
-    #         # pos2
-
-
-    #         SAXSy_o = SAXSy.user_readback.value
-
-
-    #         SAXSx_o = SAXSx.user_readback.value
-
-
-    #         WAXSy_o = WAXSy.user_readback.value
-
-
-    #         WAXSx_o = WAXSx.user_readback.value
-
-
-    #         # MAXSy_o = MAXSy.user_readback.value
-
-
-
-
-
-    #         for angle in angles:
-
-
-    #             self.thabs(angle)
-
-
-    #             time.sleep(0.2)
-
-
-    #             if pilatus2M in cms.detector:
-
-
-    #                 SAXSy.move(SAXSy_o + 5.16)
-
-
-    #             if pilatus800 in cms.detector:
-
-
-    #                 WAXSy.move(WAXSy_o + 5.16)
-
-
-    #             if pilatus300 in cms.detector:
-
-
-    #                 MAXSy.move(MAXSy_o + 5.16)
-
-
-
-
-
-    #             extra_current = "pos2" if extra is None else "{}_pos2".format(extra)
-
-
-    #             md["detector_position"] = "upper"
-
-
-    #             self.measure_single(
-
-
-    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
-
-
-    #             )
-
-
-
-
-
-    #         # pos4  #comment out to save time
-
-
-    #         for angle in angles:
-
-
-    #             self.thabs(angle)
-
-
-    #             time.sleep(0.2)
-
-
-
-
-
-    #             if pilatus2M in cms.detector:
-
-
-    #                 SAXSx.move(SAXSx_o + 5.16)
-
-
-    #                 SAXSy.move(SAXSy_o + 5.16)
-
-
-    #             if pilatus800 in cms.detector:
-
-
-    #                 WAXSx.move(WAXSx_o - 5.16)
-
-
-    #                 WAXSy.move(WAXSy_o + 5.16)
-
-
-    #             extra_current = "pos4" if extra is None else "{}_pos4".format(extra)
-
-
-    #             md["detector_position"] = "upper_right"
-
-
-    #             self.measure_single(
-
-
-    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
-
-
-    #             )
-
-
-
-
-
-    #         # pos3
-
-
-    #         for angle in angles:
-
-
-    #             self.thabs(angle)
-
-
-    #             time.sleep(0.2)
-
-
-
-
-
-    #             if pilatus2M in cms.detector:
-
-
-    #                 SAXSx.move(SAXSx_o + 5.16)
-
-
-    #                 SAXSy.move(SAXSy_o)
-
-
-    #             if pilatus800 in cms.detector:
-
-
-    #                 WAXSx.move(WAXSx_o - 5.16)
-
-
-    #                 WAXSy.move(WAXSy_o)
-
-
-
-
-
-    #             extra_current = "pos3" if extra is None else "{}_pos3".format(extra)
-
-
-    #             md["detector_position"] = "lower_right"
-
-
-    #             self.measure_single(
-
-
-    #                 exposure_time=exposure_time, extra=extra_current, verbosity=verbosity, stitchback=True, **md
-
-
-    #             )
-
-
-
-
-
-    #         if WAXSx.user_readback.value != WAXSx_o:
-
-
-    #             WAXSx.move(WAXSx_o)
-
-
-    #         if WAXSy.user_readback.value != WAXSy_o:
-
-
-    #             WAXSy.move(WAXSy_o)
-
-
-
-
-
-    #         if SAXSx.user_readback.value != SAXSx_o:
-
-
-    #             SAXSx.move(SAXSx_o)
-
-
-    #         if SAXSy.user_readback.value != SAXSy_o:
-
-
-    #             SAXSy.move(SAXSy_o)
-
-
 
     ################# Direct beam transmission measurement ####################
     def intMeasure(self, output_file, exposure_time):
@@ -597,47 +228,48 @@ class SampleGISAXS_Generic(Sample_Generic):
 
         return pds.DataFrame(data=current_data)
 
-    def _alignOld(self, step=0):
-        """Align the sample with respect to the beam. GISAXS alignment involves
-        vertical translation to the beam center, and rocking theta to get the
-        sample plane parralel to the beam.
+# DEPRECATED
+    # def _alignOld(self, step=0):
+    #     """Align the sample with respect to the beam. GISAXS alignment involves
+    #     vertical translation to the beam center, and rocking theta to get the
+    #     sample plane parralel to the beam.
 
-        The 'step' argument can optionally be given to jump to a particular
-        step in the sequence."""
+    #     The 'step' argument can optionally be given to jump to a particular
+    #     step in the sequence."""
 
-        # TODO: Deprecate and delete
+    #     # TODO: Deprecate and delete
 
-        if step <= 0:
-            # TODO: Check what mode we are in, change if necessary...
-            # get_beamline().modeAlignment()
-            beam.on()
+    #     if step <= 0:
+    #         # TODO: Check what mode we are in, change if necessary...
+    #         # get_beamline().modeAlignment()
+    #         beam.on()
 
-        # TODO: Improve implementation
-        if step <= 2:
-            # fit_scan(smy, 2.6, 35, fit='HM')
-            fit_scan(smy, 2.6, 35, fit="sigmoid_r")
+    #     # TODO: Improve implementation
+    #     if step <= 2:
+    #         # fit_scan(smy, 2.6, 35, fit='HM')
+    #         fit_scan(smy, 2.6, 35, fit="sigmoid_r")
 
-        if step <= 4:
-            # fit_scan(smy, 0.6, 17, fit='HM')
-            fit_scan(smy, 0.6, 17, fit="sigmoid_r")
-            fit_scan(sth, 1.2, 21, fit="max")
+    #     if step <= 4:
+    #         # fit_scan(smy, 0.6, 17, fit='HM')
+    #         fit_scan(smy, 0.6, 17, fit="sigmoid_r")
+    #         fit_scan(sth, 1.2, 21, fit="max")
 
-        # if step<=6:
-        #    fit_scan(smy, 0.3, 17, fit='sigmoid_r')
-        #    fit_scan(sth, 1.2, 21, fit='COM')
+    #     # if step<=6:
+    #     #    fit_scan(smy, 0.3, 17, fit='sigmoid_r')
+    #     #    fit_scan(sth, 1.2, 21, fit='COM')
 
-        if step <= 8:
-            fit_scan(smy, 0.2, 17, fit="sigmoid_r")
-            fit_scan(sth, 0.8, 21, fit="gauss")
+    #     if step <= 8:
+    #         fit_scan(smy, 0.2, 17, fit="sigmoid_r")
+    #         fit_scan(sth, 0.8, 21, fit="gauss")
 
-        if step <= 9:
-            # self._testing_refl_pos()
-            # movr(sth,.1)
-            # fit_scan(sth, 0.2, 41, fit='gauss')
-            # fit_scan(smy, 0.2, 21, fit='gauss')
-            # movr(sth,-.1)
+    #     if step <= 9:
+    #         # self._testing_refl_pos()
+    #         # movr(sth,.1)
+    #         # fit_scan(sth, 0.2, 41, fit='gauss')
+    #         # fit_scan(smy, 0.2, 21, fit='gauss')
+    #         # movr(sth,-.1)
 
-            beam.off()
+    #         beam.off()
 
 
     def align(self, step=0, reflection_angle=0.15, verbosity=3):
@@ -710,28 +342,18 @@ class SampleGISAXS_Generic(Sample_Generic):
                 self.thabs(0.0)
                 beam.off()
 
-        ### save the alignment information
         align_time = time.time() - start_time
+        comment = (
+            f"alignment={alignment}; elapsed={align_time:.1f} s; "
+            f"offset_y={smy.position - initial_y:.4f}; "
+            f"offset_th={sth.position - initial_th:.4f}; "
+            f"search_offset_y={smy.position - crazy_y:.4f}; "
+            f"search_offset_th={sth.position - crazy_th:.4f}; "
+            f"searches={align_crazy[1]}"
+        )
 
-        current_data = {'a_sample': self.name,
-                        'b_quick_alignment': alignment, 
-                        'c_align_time': align_time, 
-                        'd_offset_y': smy.position - initial_y,
-                        'e_offset_th': sth.position - initial_th, 
-                        'f_crazy_offset_y': smy.position - crazy_y,
-                        'g_crazy_offset_th': sth.position - crazy_th, 
-                        'h_search_no': align_crazy[1]}
-        
-        temp_data = pds.DataFrame([current_data])
-
-        INT_FILENAME='{}/data/{}.csv'.format(os.path.dirname(__file__) , 'alignment_results.csv')            
-    
-        if os.path.isfile(INT_FILENAME):
-            output_data = pds.read_csv(INT_FILENAME, index_col=0)
-            output_data = pds.concat([output_data, temp_data])    
-            output_data.to_csv(INT_FILENAME)
-        else:
-            temp_data.to_csv(INT_FILENAME)
+        # Persist logical coordinates plus a readable alignment summary.
+        self.save_aligned_pos(comment=comment)
 
     def swing(self, step=0, reflection_angle=0.12, ROI_size=[10, 180], th_range=0.3, int_threshold=10, verbosity=3):
 
@@ -790,7 +412,7 @@ class SampleGISAXS_Generic(Sample_Generic):
                 # value_name = get_beamline().TABLE_COLS[0]
                 beam.on()
                 RE(count([detector]))
-                value = detector.read()['pilatus2M_stats4_total']['value']
+                value = detector.read()['pilatus2m-1_stats4_total']['value']
                 self.yr(2)
             
             # if 'beam_intensity_expected' in RE.md:
@@ -1054,91 +676,91 @@ class SampleGISAXS_Generic(Sample_Generic):
 
         yield from inner_search()
 
+    # DEPRECATED
+    # def _test_align(self, step=0, reflection_angle=0.12, verbosity=3):
+    #     """Align the sample with respect to the beam. GISAXS alignment involves
+    #     vertical translation to the beam center, and rocking theta to get the
+    #     sample plane parralel to the beam. Finally, the angle is re-optimized
+    #     in reflection mode.
 
-    def _test_align(self, step=0, reflection_angle=0.12, verbosity=3):
-        """Align the sample with respect to the beam. GISAXS alignment involves
-        vertical translation to the beam center, and rocking theta to get the
-        sample plane parralel to the beam. Finally, the angle is re-optimized
-        in reflection mode.
+    #     The 'step' argument can optionally be given to jump to a particular
+    #     step in the sequence."""
 
-        The 'step' argument can optionally be given to jump to a particular
-        step in the sequence."""
+    #     if verbosity >= 4:
+    #         print("  Aligning {}".format(self.name))
 
-        if verbosity >= 4:
-            print("  Aligning {}".format(self.name))
+    #     if step <= 0:
+    #         # Prepare for alignment
 
-        if step <= 0:
-            # Prepare for alignment
+    #         if RE.state != "idle":
+    #             RE.abort()
 
-            if RE.state != "idle":
-                RE.abort()
+    #         if get_beamline().current_mode != "alignment":
+    #             # if verbosity>=2:
+    #             # print("WARNING: Beamline is not in alignment mode (mode is '{}')".format(get_beamline().current_mode))
+    #             print("Switching to alignment mode (current mode is '{}')".format(get_beamline().current_mode))
+    #             get_beamline().modeAlignment()
+    #         get_beamline().setDirectBeamROI()
+    #     # if step<=2:
+    #     # if verbosity>=4:
+    #     # print('    align: searching')
+    #     # beam.on()
+    #     ## Estimate full-beam intensity
+    #     # value = None
+    #     # if True:
+    #     ## You can eliminate this, in which case RE.md['beam_intensity_expected'] is used by default
+    #     # self.yr(-2)
+    #     ##detector = gs.DETS[0]
+    #     # detector = get_beamline().detector[0]
+    #     # value_name = get_beamline().TABLE_COLS[0]
+    #     # RE(count([detector]))
+    #     # value = detector.read()[value_name]['value']
+    #     # self.yr(+2)
 
-            if get_beamline().current_mode != "alignment":
-                # if verbosity>=2:
-                # print("WARNING: Beamline is not in alignment mode (mode is '{}')".format(get_beamline().current_mode))
-                print("Switching to alignment mode (current mode is '{}')".format(get_beamline().current_mode))
-                get_beamline().modeAlignment()
-            get_beamline().setDirectBeamROI()
-        # if step<=2:
-        # if verbosity>=4:
-        # print('    align: searching')
-        # beam.on()
-        ## Estimate full-beam intensity
-        # value = None
-        # if True:
-        ## You can eliminate this, in which case RE.md['beam_intensity_expected'] is used by default
-        # self.yr(-2)
-        ##detector = gs.DETS[0]
-        # detector = get_beamline().detector[0]
-        # value_name = get_beamline().TABLE_COLS[0]
-        # RE(count([detector]))
-        # value = detector.read()[value_name]['value']
-        # self.yr(+2)
+    #     # if 'beam_intensity_expected' in RE.md and value<RE.md['beam_intensity_expected']*0.75:
+    #     # print('WARNING: Direct beam intensity ({}) lower than it should be ({})'.format(value, RE.md['beam_intensity_expected']))
 
-        # if 'beam_intensity_expected' in RE.md and value<RE.md['beam_intensity_expected']*0.75:
-        # print('WARNING: Direct beam intensity ({}) lower than it should be ({})'.format(value, RE.md['beam_intensity_expected']))
+    #     ## Find the step-edge
+    #     # self.ysearch(step_size=0.5, min_step=0.005, intensity=value, target=0.5, verbosity=verbosity, polarity=-1)
 
-        ## Find the step-edge
-        # self.ysearch(step_size=0.5, min_step=0.005, intensity=value, target=0.5, verbosity=verbosity, polarity=-1)
+    #     ## Find the peak
+    #     # self.thsearch(step_size=0.4, min_step=0.01, target='max', verbosity=verbosity)
 
-        ## Find the peak
-        # self.thsearch(step_size=0.4, min_step=0.01, target='max', verbosity=verbosity)
+    #     if step <= 4:
+    #         if verbosity >= 4:
+    #             print("    align: fitting")
 
-        if step <= 4:
-            if verbosity >= 4:
-                print("    align: fitting")
+    #         fit_scan(smy, 1.2, 21, fit="HMi")
+    #         ##time.sleep(2)
+    #         fit_scan(sth, 1.5, 21, fit="max")
+    #         ##time.sleep(2)
 
-            fit_scan(smy, 1.2, 21, fit="HMi")
-            ##time.sleep(2)
-            fit_scan(sth, 1.5, 21, fit="max")
-            ##time.sleep(2)
+    #     # if step<=8 and reflection_angle==None:
+    #     # fit_edge(smy, 0.6, 21)
+    #     ##time.sleep(2)
+    #     # fit_scan(sth, 0.8, 21, fit='COM')
+    #     # self.setOrigin(['y', 'th'])
 
-        # if step<=8 and reflection_angle==None:
-        # fit_edge(smy, 0.6, 21)
-        ##time.sleep(2)
-        # fit_scan(sth, 0.8, 21, fit='COM')
-        # self.setOrigin(['y', 'th'])
+    #     if step <= 9 and reflection_angle is not None:
+    #         # Final alignment using reflected beam
+    #         if verbosity >= 4:
+    #             print("    align: reflected beam")
+    #         get_beamline().setReflectedBeamROI(total_angle=reflection_angle * 2.0)
+    #         # sth scan
+    #         self.thabs(reflection_angle)
+    #         result = fit_scan(sth, 0.4, 41, fit="max")
+    #         sth_target = result.values["x_max"] - reflection_angle
 
-        if step <= 9 and reflection_angle is not None:
-            # Final alignment using reflected beam
-            if verbosity >= 4:
-                print("    align: reflected beam")
-            get_beamline().setReflectedBeamROI(total_angle=reflection_angle * 2.0)
-            # sth scan
-            self.thabs(reflection_angle)
-            result = fit_scan(sth, 0.4, 41, fit="max")
-            sth_target = result.values["x_max"] - reflection_angle
+    #         if result.values["y_max"] > 50:
+    #             th_target = self._axes["th"].motor_to_cur(sth_target)
+    #             self.thsetOrigin(th_target)
+    #         # y scan
+    #         fit_scan(smy, 0.2, 21, fit="max")
+    #         self.setOrigin(["y"])
 
-            if result.values["y_max"] > 50:
-                th_target = self._axes["th"].motor_to_cur(sth_target)
-                self.thsetOrigin(th_target)
-            # y scan
-            fit_scan(smy, 0.2, 21, fit="max")
-            self.setOrigin(["y"])
-
-        if step <= 10:
-            self.thabs(0.0)
-            beam.off()
+    #     if step <= 10:
+    #         self.thabs(0.0)
+    #         beam.off()
 
     def alignQuick(self, align_step=8, reflection_angle=0.08, verbosity=3):
         get_beamline().modeAlignment()
@@ -1199,7 +821,10 @@ class SampleGISAXS_Generic(Sample_Generic):
             print("schi offset is WRONG. Please redo the level command")
         fit_edge(smy, 0.6, 17)  # it's better not to move smy after scan but only the center position
         self.setOrigin(["y"])
-
+        
+    # TODO
+    # Refracture it so it does not live in Sample Class
+    # Make it into a standalone function that accepts hol/sam
     def do(self, step=0, align_step=0, **md):
         if step <= 1:
             get_beamline().modeAlignment()
@@ -1222,9 +847,6 @@ class SampleGISAXS_Generic(Sample_Generic):
             get_beamline().modeMeasurement()
 
         if step <= 10:
-            # detselect([pilatus300, psccd])
-            # detselect(psccd)
-            # detselect(pilatus300)
             detselect(pilatus2M)
             for detector in get_beamline().detector:
                 if detector.name == "pilatus2m-1":
@@ -1234,38 +856,42 @@ class SampleGISAXS_Generic(Sample_Generic):
             self.measureIncidentAngles(self.incident_angles_default, **md)
             self.thabs(0.0)
 
-    def backup_do_SAXS(self, step=0, align_step=0, measure_setting=None, **md):
-        if step <= 1:
-            saxs_on()
-            get_beamline().modeAlignment()
+# # DEPRECATED
+#     def backup_do_SAXS(self, step=0, align_step=0, measure_setting=None, **md):
+#         if step <= 1:
+#             saxs_on()
+#             get_beamline().modeAlignment()
 
-        if step <= 2:
-            self.xo()  # goto origin
+#         if step <= 2:
+#             self.xo()  # goto origin
 
-        if step <= 4:
-            self.yo()
-            self.tho()
+#         if step <= 4:
+#             self.yo()
+#             self.tho()
 
-        if step <= 5:
-            self.align(step=align_step, reflection_angle=0.12)
-            # self.setOrigin(['y','th']) # This is done within align
+#         if step <= 5:
+#             self.align(step=align_step, reflection_angle=0.12)
+#             # self.setOrigin(['y','th']) # This is done within align
 
-        # if step<=7:
-        # self.xr(0.2)
+#         # if step<=7:
+#         # self.xr(0.2)
 
-        if step <= 8:
-            get_beamline().modeMeasurement()
+#         if step <= 8:
+#             get_beamline().modeMeasurement()
 
-        if step <= 10:
-            if measure_setting == None:
-                measure_setting = measure_setting
+#         if step <= 10:
+#             if measure_setting == None:
+#                 measure_setting = measure_setting
 
-            if self.incident_angles == None:
-                incident_angles = self.incident_angles_default
-            else:
-                incident_angles = self.incident_angles
-            self.measureIncidentAngles_Stitch(incident_angles, exposure_time=self.SAXS_time, tiling="ygaps", **md)
+#             if self.incident_angles == None:
+#                 incident_angles = self.incident_angles_default
+#             else:
+#                 incident_angles = self.incident_angles
+#             self.measureIncidentAngles_Stitch(incident_angles, exposure_time=self.SAXS_time, tiling="ygaps", **md)
 
+    # TODO
+    # Refracture it so it does not live in Sample Class
+    # Make it into a standalone function that accepts hol/sam
     def do_SAXS(self, step=0, align_step=0, measure_setting=None, **md):
         if step <= 1:
             saxs_on()
@@ -1305,6 +931,9 @@ class SampleGISAXS_Generic(Sample_Generic):
 
             self.measureIncidentAngles_Stitch(incident_angles, exposure_time=exposure_time, tiling=tiling, **md)
 
+    # TODO
+    # Refracture it so it does not live in Sample Class
+    # Make it into a standalone function that accepts hol/sam
     def do_WAXS_only(self, step=0, align_step=0, **md):
         if step < 5:
             self.xo()
@@ -1328,45 +957,49 @@ class SampleGISAXS_Generic(Sample_Generic):
             self.measureIncidentAngles_Stitch(incident_angles, exposure_time=exposure_time, tiling=tiling, **md)
             self.thabs(0.0)
 
-    def _backup_do_WAXS(self, step=0, align_step=0, **md):
-        if step <= 1:
-            saxs_on()
-            get_beamline().modeAlignment()
+# # DEPRECATED
+#     def _backup_do_WAXS(self, step=0, align_step=0, **md):
+#         if step <= 1:
+#             saxs_on()
+#             get_beamline().modeAlignment()
 
-        if step <= 2:
-            self.xo()  # goto origin
+#         if step <= 2:
+#             self.xo()  # goto origin
 
-        if step <= 4:
-            self.yo()
-            self.tho()
+#         if step <= 4:
+#             self.yo()
+#             self.tho()
 
-        if step <= 5:
-            self.align(step=align_step, reflection_angle=0.12)
-            # self.setOrigin(['y','th']) # This is done within align
+#         if step <= 5:
+#             self.align(step=align_step, reflection_angle=0.12)
+#             # self.setOrigin(['y','th']) # This is done within align
 
-        # if step<=7:
-        # self.xr(0.2)
+#         # if step<=7:
+#         # self.xr(0.2)
 
-        if step <= 8:
-            get_beamline().modeMeasurement()
+#         if step <= 8:
+#             get_beamline().modeMeasurement()
 
-        if step <= 10:
-            if self.incident_angles == None:
-                incident_angles = self.incident_angles_default
-            else:
-                incident_angles = self.incident_angles
+#         if step <= 10:
+#             if self.incident_angles == None:
+#                 incident_angles = self.incident_angles_default
+#             else:
+#                 incident_angles = self.incident_angles
 
-            waxs_on()  # edited from waxs_on 3/25/19 through a saxs_on error
-            # for detector in get_beamline().detector:
-            # detector.setExposureTime(self.MAXS_time)
-            self._test2_measureIncidentAngles(incident_angles, exposure_time=self.WAXS_time, tiling="ygaps", **md)
+#             waxs_on()  # edited from waxs_on 3/25/19 through a saxs_on error
+#             # for detector in get_beamline().detector:
+#             # detector.setExposureTime(self.MAXS_time)
+#             self._test2_measureIncidentAngles(incident_angles, exposure_time=self.WAXS_time, tiling="ygaps", **md)
 
-            # if self.exposure_time_MAXS==None:
-            # self.measureIncidentAngles(incident_angles, exposure_time=self.MAXS_time, tiling=self.tiling, **md)
-            # else:
-            # self.measureIncidentAngles(incident_angles, exposure_time=self.exposure_time_MAXS, tiling=self.tiling, **md)
-            self.thabs(0.0)
+#             # if self.exposure_time_MAXS==None:
+#             # self.measureIncidentAngles(incident_angles, exposure_time=self.MAXS_time, tiling=self.tiling, **md)
+#             # else:
+#             # self.measureIncidentAngles(incident_angles, exposure_time=self.exposure_time_MAXS, tiling=self.tiling, **md)
+#             self.thabs(0.0)
 
+    # TODO
+    # Refracture it so it does not live in Sample Class
+    # Make it into a standalone function that accepts hol/sam
     def do_WAXS(self, step=0, align_step=0, **md):
         if step <= 1:
             saxs_on()
@@ -2192,39 +1825,40 @@ class GIBar(PositionalHolder):
         self.tiling = None
         self.measure_setting = {}
 
-    def _backup_addSampleSlotPosition(
-        self,
-        sample,
-        slot,
-        position,
-        detector_opt="SAXS",
-        incident_angles=None,
-        account_substrate=True,
-        exposure_time=None,
-        thickness=0,
-    ):
-        """Adds a sample to the specified "slot" (defined/numbered sample
-        holding spot on this holder)."""
+#DEPRECATED
+    # def _backup_addSampleSlotPosition(
+    #     self,
+    #     sample,
+    #     slot,
+    #     position,
+    #     detector_opt="SAXS",
+    #     incident_angles=None,
+    #     account_substrate=True,
+    #     exposure_time=None,
+    #     thickness=0,
+    # ):
+    #     """Adds a sample to the specified "slot" (defined/numbered sample
+    #     holding spot on this holder)."""
 
-        super().addSampleSlotPosition(
-            sample=sample,
-            slot=slot,
-            position=position,
-            detector_opt=detector_opt,
-            incident_angles=incident_angles,
-        )
+    #     super().addSampleSlotPosition(
+    #         sample=sample,
+    #         slot=slot,
+    #         position=position,
+    #         detector_opt=detector_opt,
+    #         incident_angles=incident_angles,
+    #     )
 
-        # Adjust y-origin to account for substrate thickness
-        if account_substrate and "substrate_thickness" in sample.md:
-            sample.ysetOrigin(-1.0 * sample.md["substrate_thickness"])
+    #     # Adjust y-origin to account for substrate thickness
+    #     if account_substrate and "substrate_thickness" in sample.md:
+    #         sample.ysetOrigin(-1.0 * sample.md["substrate_thickness"])
 
-        sample.detector = detector_opt
-        sample.exposure_time = exposure_time
-        sample.thickness = exposure_time
+    #     sample.detector = detector_opt
+    #     sample.exposure_time = exposure_time
+    #     sample.thickness = exposure_time
 
-        # Adjust y-origin to account for substrate thickness
-        if thickness != 0:
-            sample.ysetOrigin(-1.0 * thickness)
+    #     # Adjust y-origin to account for substrate thickness
+    #     if thickness != 0:
+    #         sample.ysetOrigin(-1.0 * thickness)
 
     def addSampleSlotPosition(
         self,
@@ -2397,25 +2031,26 @@ class GIBar(PositionalHolder):
 
         print(save_string)
 
-    def _backup_doSamples(self, range=None, verbosity=3):
-        # saxs_on()
-        for sample in self.getSamples(range=range):
-            if verbosity >= 3:
-                print("Doing sample {}...".format(sample.name))
-            if sample.detector == "SAXS" or sample.detector == "BOTH":
-                sample.do_SAXS()
+# # Deprecated
+#     def _backup_doSamples(self, range=None, verbosity=3):
+#         # saxs_on()
+#         for sample in self.getSamples(range=range):
+#             if verbosity >= 3:
+#                 print("Doing sample {}...".format(sample.name))
+#             if sample.detector == "SAXS" or sample.detector == "BOTH":
+#                 sample.do_SAXS()
 
-        for sample in self.getSamples(range=range):
-            if verbosity >= 3:
-                print("Doing sample {}...".format(sample.name))
-            if sample.detector == "BOTH":
-                sample.do_WAXS_only()
+#         for sample in self.getSamples(range=range):
+#             if verbosity >= 3:
+#                 print("Doing sample {}...".format(sample.name))
+#             if sample.detector == "BOTH":
+#                 sample.do_WAXS_only()
 
-        for sample in self.getSamples(range=range):
-            if verbosity >= 3:
-                print("Doing sample {}...".format(sample.name))
-            if sample.detector == "WAXS":
-                sample.do_WAXS()
+#         for sample in self.getSamples(range=range):
+#             if verbosity >= 3:
+#                 print("Doing sample {}...".format(sample.name))
+#             if sample.detector == "WAXS":
+#                 sample.do_WAXS()
 
     def doSamples(self, range=None, verbosity=3):
         # saxs_on()

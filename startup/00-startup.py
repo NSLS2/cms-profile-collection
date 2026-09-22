@@ -90,9 +90,9 @@ def assets_path():
 
 def bluesky_path(file=None):
     if file is not None:
-        return f"/nsls2/auto-storage/cms/shared/config/bluesky/profile_collection/startup/{file}"
+        return f"/nsls2/data/cms/shared/config/bluesky/profile_collection/startup/{file}"
     else:
-        return f"/nsls2/auto-storage/cms/shared/config/bluesky/profile_collection/startup/"
+        return f"/nsls2/data/cms/shared/config/bluesky/profile_collection/startup/"
 
 #swap users 
 from nslsii.sync_experiment import switch_redis_proposal
