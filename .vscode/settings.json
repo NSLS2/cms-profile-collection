@@ -1,5 +1,5 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#61610a",
         "activityBar.background": "#61610a",
@@ -26,7 +26,8 @@
         "statusBar.debuggingBackground": "#333305",
         "statusBar.debuggingForeground": "#e7e7e7"
     },
-    "peacock.color": "333305"
+    "peacock.color": "333305",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
 } // {
 //     "python-envs.defaultEnvManager": "ms-python.python:system",
 //     "python.analysis.languageServerMode": "light"
