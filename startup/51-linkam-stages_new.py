@@ -9,6 +9,7 @@ import time
 import json
 from pathlib import Path
 from datetime import datetime
+from shutil import copyfile
 from ophyd import PositionerBase
 from ophyd.status import MoveStatus
 
@@ -75,9 +76,9 @@ class LinkamThermal(Device):
         Initialize LinkamThermal device, step configuration, and position logging.
         """
         super().__init__(prefix, name=name, **kwargs)
-        self.folder = '/nsls2/data/cms/shared/config/bluesky/profile_collection/startup/cfg/'
-        self.config_file = Path(self.folder + 'linkam_stage_pos.cfg')
-        self.csv_path = Path(self.folder + f'{name}_step.csv')
+        self.folder = Path(bluesky_path('cfg'))
+        self.config_file = self.folder / 'linkam_stage_pos.cfg'
+        self._csv_path = self.folder / f'{name}_step.csv'
         self.step_columns = step_columns or self.step_columns
         self.pv_list = pv_list or self.pv_list
         self.step_config = pd.DataFrame(columns=self.step_columns)
@@ -225,18 +226,55 @@ class LinkamThermal(Device):
     # Linkam Stage Step Configuration Read/Load functions
     # Added by Siyu Wu 2025-08-19
 
-    def load_step_config(self) -> pd.DataFrame:
+    @property
+    def csv_path(self) -> Path:
+        """Current step-configuration CSV path."""
+        return self._csv_path
+
+    @csv_path.setter
+    def csv_path(self, path) -> None:
+        path = Path(path)
+        if path.suffix != '.csv':
+            path = path.with_suffix('.csv')
+        if not path.is_absolute():
+            try:
+                path = Path(RE.md['userpy_alias_directory']) / path
+            except KeyError as error:
+                raise RuntimeError("RE.md['userpy_alias_directory'] must be set before "
+                                   "loading a user Linkam step profile.") from error
+        self._csv_path = path
+
+    def load_step_config(self, profile=None) -> pd.DataFrame:
         """
-        Load step configuration from CSV.
+        Load a user step-configuration profile or explicit CSV path.
         Uses self.step_columns for required columns; lines starting with '#' are
-        treated as comments and skipped.
+        treated as comments and skipped. Missing user profiles are initialized
+        from a same-named template in the shared cfg directory. The selected
+        path becomes csv_path, so subsequent editing saves to that user file.
         Returns: pandas DataFrame
         """
+        if profile is not None:
+            self.csv_path = profile
+        elif self.csv_path.parent == self.folder:
+            self.csv_path = self.csv_path.name
+
+        if not self.csv_path.exists():
+            template_path = self.folder / self.csv_path.name
+            if not template_path.is_file():
+                raise FileNotFoundError(f"No user profile at {self.csv_path} and no shared "
+                                        f"template at {template_path}.")
+            self.csv_path.parent.mkdir(parents=True, exist_ok=True)
+            copyfile(template_path, self.csv_path)
+            print(f"[LINKAM] Created user step profile from {template_path.name}: {self.csv_path}")
+
         df = pd.read_csv(self.csv_path, comment='#', skipinitialspace=True)
         required_cols = set(self.step_columns)
         if not required_cols.issubset(df.columns):
             raise ValueError(f"CSV must contain columns: {required_cols}")
         self.step_config = df
+        path_text = str(self.csv_path)
+        print(f"[LINKAM] Loaded {len(df)} step(s) from: "
+              f"\033]8;;{self.csv_path.as_uri()}\033\\{path_text}\033]8;;\033\\")
         self.check_step_timing()
         return df
 
@@ -482,7 +520,7 @@ class LinkamThermal(Device):
         """
         if output_file is None:
             now = datetime.now().strftime("%Y%m%d-%H-%M-%S")
-            output_file = self.folder + f'linkam_archiver_record_{now}.csv'
+            output_file = self.folder / f'linkam_archiver_record_{now}.csv'
         pv_list = self.pv_list
         if stop_event is None:
             stop_event = asyncio.Event()
