@@ -1967,6 +1967,8 @@ class GIBar(PositionalHolder):
 
     def alignSamplesVeryQuick(self, range=None, step=0, x_offset=0, verbosity=3, **md):
         """Iterates through the samples on the holder, aligning each one."""
+        # AlignVeryQuick is not defined in the base class
+        # This method should be deprecated
 
         if step <= 0:
             get_beamline().modeAlignment()

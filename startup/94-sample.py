@@ -3710,41 +3710,41 @@ class Sample_Generic(CoordinateSystem):
     #     # print('7') #4.9589
     #     # print(self.clock())
 
-    def _test_measureSpots(
-        self,
-        num_spots=4,
-        translation_amount=0.2,
-        axis="y",
-        exposure_time=None,
-        extra=None,
-        shutteronoff=True,
-        measure_type="measureSpots",
-        tiling=None,
-        **md,
-    ):
-        """Measure multiple spots on the sample."""
+    # def _test_measureSpots(
+    #     self,
+    #     num_spots=4,
+    #     translation_amount=0.2,
+    #     axis="y",
+    #     exposure_time=None,
+    #     extra=None,
+    #     shutteronoff=True,
+    #     measure_type="measureSpots",
+    #     tiling=None,
+    #     **md,
+    # ):
+    #     """Measure multiple spots on the sample."""
 
-        if "spot_number" not in self.md:
-            self.md["spot_number"] = 1
+    #     if "spot_number" not in self.md:
+    #         self.md["spot_number"] = 1
 
-        start_time = time.time()
+    #     start_time = time.time()
 
-        for spot_num in range(num_spots):
-            self._test_measure_single(
-                exposure_time=exposure_time,
-                extra=extra,
-                measure_type=measure_type,
-                shutteronoff=shutteronoff,
-                tiling=tiling,
-                **md,
-            )
+    #     for spot_num in range(num_spots):
+    #         self._test_measure_single(
+    #             exposure_time=exposure_time,
+    #             extra=extra,
+    #             measure_type=measure_type,
+    #             shutteronoff=shutteronoff,
+    #             tiling=tiling,
+    #             **md,
+    #         )
 
-            print(spot_num + 1)
-            print(time.time() - start_time)
-            getattr(self, axis + "r")(translation_amount)
-            self.md["spot_number"] += 1
-            print("{:d} of {:d} is done".format(spot_num + 1, num_spots))
-            print(time.time() - start_time)
+    #         print(spot_num + 1)
+    #         print(time.time() - start_time)
+    #         getattr(self, axis + "r")(translation_amount)
+    #         self.md["spot_number"] += 1
+    #         print("{:d} of {:d} is done".format(spot_num + 1, num_spots))
+    #         print(time.time() - start_time)
 
     @with_tiling()
     def measureSpots(
