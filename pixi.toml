@@ -2,14 +2,15 @@
 channels = ["conda-forge", "robostack-jazzy"]
 name = "cms-profile-collection"
 platforms = [{ platform = "linux-64", glibc = "2.17" }]
-version = "2026.2.0"
+version = "2026.3.0"
+requires-pixi = ">=0.82.1"
 
 
 [feature.profile.dependencies]
 bluesky-base = "==1.15.0"
 bluesky-queueserver = "*"
 bluesky-queueserver-api = ">=0.0.12"
-matplotlib-base= ">=3.10"
+matplotlib-base = ">=3.10"
 networkx = ">=3.4.2,<4"
 nslsii = "==0.11.8"
 numpy = "*"
@@ -45,6 +46,9 @@ ros-jazzy-ament-cmake-python = ">=2.5.6,<3"
 ros-jazzy-geometry-msgs = ">=5.3.7,<6"
 ros-jazzy-std-msgs = ">=5.3.7,<6"
 sympy = ">=1.14.0,<2"
+ca-certificates = ">=2026.10.19"
+certifi = ">=2026.10.19"
+pip = ">=26.2.2"
 #typing-extensions = ">=4.15.0"
 #pydantic  = ">=2.12.5"
 
@@ -75,10 +79,15 @@ numpy = ">2"
 start = "unset SESSION_MANAGER PYTHONPATH && PYTHONUSERBASE=/tmp MPLBACKEND=qtagg ipython --profile-dir=."
 pvs = "ipython --profile-dir=. -c 'get_pv_types(); exit()'"
 
-[environments]
-terminal = {features=["profile", "terminal"], solve-group="profile"}
-qs = {features=["profile", "qs"], solve-group="profile"}
+[environments.terminal]
+features = ["profile", "terminal"]
+solve-group = "profile"
+
+[environments.qs]
+features = ["profile", "qs"]
+solve-group = "profile"
 
 [dependencies]
 sympy = ">=1.14.0,<2"
 ros-jazzy-rclpy = ">=7.1.11,<8"
+ca-certificates = ">=2026.10.19"
