@@ -1,5 +1,7 @@
 print(f'Loading {__file__}')
 
+import os
+
 from ophyd import EpicsMotor, EpicsSignal, Device, Component as Cpt
 import json
 from pathlib import Path
@@ -11,9 +13,6 @@ from datetime import datetime
 # class Slits(Device):
 #    top = Cpt(EpicsMotor, '-Ax:T}Mtr')
 #    bottom = Cpt(EpicsMotor, '-Ax:B}Mtr')
-beamline_stage = "default"  #for AB, please also change Smpl2-Y from 3... to -5 
-# beamline_stage = 'open_MAXS'
-# beamline_stage = 'BigHuber'
 
 """
 Example for swithing between beamline modes:
@@ -465,55 +464,8 @@ bim4y = EpicsMotor("XF:11BMB-BI{IM:4-Ax:Y}Mtr", name="bim4y")
 bim5y = EpicsMotor("XF:11BMB-BI{IM:5-Ax:Y}Mtr", name="bim5y")
 
 ## stages for sample positioning
-# beamline_stage is defined by the current sample stage. 'default' is the regular vacuum chamber
-#'open_WAXS' is the alternative stage position with Pilatus300k as the WAXS detector.
-if beamline_stage == "default":
-    smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:X}Mtr", name="smx")
-
-    # smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:X}Mtr", name="smx") # change to ESP302 and hardware IOC2, by RL at 20260313
-     
-    smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Y}Mtr", name="smy")
-    # 2023-Sep-12, change sth and schi back to original setting
-    sth = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:theta}Mtr", name="sth")
-    schi = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:chi}Mtr", name="schi")
-    # 2023-Jul-29 theta not stable, switch to chi for incident angle
-    # sth = EpicsMotor('XF:11BMB-ES{Chm:Smpl-Ax:chi}Mtr', name='sth')
-    # schi = EpicsMotor('XF:11BMB-ES{Chm:Smpl-Ax:theta}Mtr', name='schi')
-
-elif beamline_stage == "open_MAXS":
-    smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:X}Mtr", name="smx")
-    #changed by RL at 20260312 to change to a temporary stage (borrowed from IXS) for open area. 
-
-    # smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:X}Mtr", name="smx") 
-    smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:Y}Mtr", name="smy")
-
-    #for test
-    # smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:X}Mtr", name="smx") 
-    # smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl-Ax:Y}Mtr", name="smy")
-    ##
-
-    # smz = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:Z}Mtr", name="smz")
-    # sth = EpicsMotor('XF:11BMB-ES{SM:2-Ax:theta}Mtr', name='sth')
-    # schi = EpicsMotor('XF:11BMB-ES{SM:2-Ax:chi}Mtr', name='schi')
-    # swap sth and schi at 082219 by RL
-    sth = EpicsMotor("XF:11BMB-ES{SM:2-Ax:theta}Mtr", name="sth")
-    schi = EpicsMotor("XF:11BMB-ES{SM:2-Ax:chi}Mtr", name="schi")
-
-elif beamline_stage == "BigHuber":
-    # Huber
-    smy = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:Y}Mtr", name="smy")
-    sth = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:theta}Mtr", name="sth")
-    schi = EpicsMotor("XF:11BMB-ES{Chm:Smpl3-Ax:chi}Mtr", name="schi")
-
-    # # Newports for PTA
-    # smx = EpicsMotor('XF:11BMB-ES{PTA:Sample-Ax:X}Mtr', name='smx')
-    # laserx = EpicsMotor('XF:11BMB-ES{PTA:Laser-Ax:X}Mtr', name='laserx')
-    # lasery = EpicsMotor('XF:11BMB-ES{PTA:Laser-Ax:Y}Mtr', name='lasery')
-
-    # # # GDoerk's spray coater
-    smx = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:Y}Mtr", name="smx")
-    # # smx = EpicsMotor('XF:11BMB-ES{ESP:3-Ax:C1}Mtr', name='smx')
-    sprayy = EpicsMotor("XF:11BMB-ES{Chm:Smpl2-Ax:X}Mtr", name="sprayy")
+for motor_name, pv in beamline_mode_config["sample_motors"].items():
+    globals()[motor_name] = EpicsMotor(pv, name=motor_name)
 
 #added in 10-27-2025 for telescoping flight path
 fpn = EpicsMotor("XF:11BM-ES{Mdrive-Ax:1}Mtr", name="fpn")

@@ -39,15 +39,10 @@ Camera_on=True
 HDF5_on = True
 # ONLY 1 Pilatus800 will be turned on at the same time. changed by RL, 20210831
 #
-print("The current stage is {}".format(beamline_stage))
-# beamline_stage = 'default' #for using chamber
-# beamline_stage = 'open_MAXS' #for using the upstream stage
-if beamline_stage == "open_MAXS" or beamline_stage == "BigHuber":
-    Pilatus800_on = False
-    Pilatus800_2_on = True
-elif beamline_stage == "default":
-    Pilatus800_on = True
-    Pilatus800_2_on = False
+print("The current beamline mode is {}".format(beamline_mode))
+Pilatus800_on = beamline_mode_config["pilatus800_on"]
+Pilatus800_2_on = beamline_mode_config["pilatus800_2_on"]
+Pilatus300_on = beamline_mode_config["pilatus300_on"]
 
 # Pilatus800_on = True
 # Pilatus800_2_on = True
@@ -770,21 +765,21 @@ if Camera_on==True:
 
 # pilatus300 section
 # if True:
-if Pilatus300_on == True:
-    pilatus300 = Pilatus300V33("XF:11BMB-ES{Det:SAXS}:", name="pilatus300k-1")
-    # pilatus300 = PilatusV33('XF:11BMB-ES{Det:SAXS}:', name="pilatus300k-1")
-    pilatus300.tiff.read_attrs = []
-    pilatus300.stats3.total.kind = "hinted"
-    pilatus300.stats4.total.kind = "hinted"
-    STATS_NAMES = ["stats1", "stats2", "stats3", "stats4", "stats5"]
-    pilatus300.read_attrs = ["tiff"] + STATS_NAMES
-    for stats_name in STATS_NAMES:
-        stats_plugin = getattr(pilatus300, stats_name)
-        stats_plugin.read_attrs = ["total"]
+# if Pilatus300_on == True:
+#     pilatus300 = Pilatus300V33("XF:11BMB-ES{Det:SAXS}:", name="pilatus300k-1")
+#     # pilatus300 = PilatusV33('XF:11BMB-ES{Det:SAXS}:', name="pilatus300k-1")
+#     pilatus300.tiff.read_attrs = []
+#     pilatus300.stats3.total.kind = "hinted"
+#     pilatus300.stats4.total.kind = "hinted"
+#     STATS_NAMES = ["stats1", "stats2", "stats3", "stats4", "stats5"]
+#     pilatus300.read_attrs = ["tiff"] + STATS_NAMES
+#     for stats_name in STATS_NAMES:
+#         stats_plugin = getattr(pilatus300, stats_name)
+#         stats_plugin.read_attrs = ["total"]
 
-    pilatus300.cam.ensure_nonblocking()
-else:
-    pilatus300 = "Pil300ISNOTWORKING"
+#     pilatus300.cam.ensure_nonblocking()
+# else:
+#     pilatus300 = "Pil300ISNOTWORKING"
 
 # pilatus800 section
 if Pilatus800_on == True:
