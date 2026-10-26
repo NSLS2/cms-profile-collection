@@ -998,10 +998,9 @@ class CMSBeam(object):
 
         self.bim3 = IonChamber_CMS(beam=self)
         self.bim4 = Scintillator_CMS()
-        if beamline_stage == "default":
-            self.beam_defining_slit = s4
-        else:
-            self.beam_defining_slit = s2
+        self.beam_defining_slit = globals()[
+            beamline_mode_config["beam_defining_slit"]
+        ]
         self.bim5 = DiamondDiode_CMS()
         # self.bim6 = PointDiode_CMS()
 
@@ -2270,6 +2269,7 @@ class CMS_Beamline(Beamline):
         DETy.move(-6.1)
 
     def beamstopCircular(self, verbosity=3):
+        # Despreciated, use bs = Beamstop.goto() instead see 10-motor.py
         self.beam.setTransmission(1e-6)
 
         bsx.move(0)
@@ -2287,6 +2287,7 @@ class CMS_Beamline(Beamline):
         self.beam.transmission(verbosity=verbosity)
 
     def beamstopLinear(self, verbosity=3):
+        # Despreciated, use bs = Beamstop.goto() instead
         self.beam.setTransmission(1e-6)
 
         bsx.move(0)
@@ -2304,6 +2305,7 @@ class CMS_Beamline(Beamline):
         self.beam.transmission(verbosity=verbosity)
 
     def beamstopCircular_new(self, verbosity=3):
+        # Despreciated, use bs = Beamstop.goto() instead
         self.beam.setTransmission(1e-6)
 
         bsx.move(0)

@@ -26,7 +26,7 @@ RE.install_suspender(sus)
 
 ### DEFINE YOUR PARENT DATA FOLDER HERE 
 
-RE.md['experiment_alias_directory'] = 'JJasinski/0_Static'
+RE.md['experiment_alias_directory'] = 'Test/0_Static'
 # RE.md['userpy_alias_directory'] = '/nsls2/auto-storage/cms/shared/config/bluesky/profile_collection/users/2026-3/SWu/2_Sanjeeva/Tensile/'
 
 #Or automatically generate path by:
@@ -575,7 +575,7 @@ history
 #change sample
 #put tensile onto sample stage, push it down to the end and close chamber
 cms.pumpChamber() # pump chamber
-startWAXS() #start WAXS detector 
+startWAXS() #start WAXS detector
 sam=Sample('test')
 #define the tensile protocol
 sam.series_measure(num_frames=110, exposure_time=9.99, exposure_period=10)
