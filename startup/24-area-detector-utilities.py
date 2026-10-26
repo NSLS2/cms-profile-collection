@@ -2,6 +2,8 @@
 
 print(f'Loading {__file__}')
 
+from ophyd import EpicsSignal
+
 # import telnetlib
 # import paramiko
 # # import numpy as np
@@ -66,24 +68,69 @@ print(f'Loading {__file__}')
 #         # Close the SSH connection
 #         client.close()
 
-#restartWAXS after pumping the vacuum below 0.5mbar
-#change to Pilatus300, 2026C2, RL
-def startWAXS(wait_time =10):
+# def startWAXS(wait_time =10):
 
-    caput(' XF:11BMB-VA{Chm:Det}UserButton', 1)
+#     caput(' XF:11BMB-VA{Chm:Det}UserButton', 1)
 
 
-    # #telnet and restart camserver
-    # restartWAXS()
-    time.sleep(wait_time)
+#     # #telnet and restart camserver
+#     # restartWAXS()
+#     time.sleep(wait_time)
 
-    # swtich to monitor detector status by CSS
-    caput("XF:11BM-CT{Det-P300K:2}Camserver:Restart", 1)
-    #set exposure time twice to garantee the EPICS connection
-    # pilatus300.cam.acquire_time.set(1.3)
-    time.sleep(5)
-    # pilatus300.cam.acquire_time.set(1.7)
-    caput("XF:11BM-ES{Det-P300K:2}:SysReset", 1)
+#     # swtich to monitor detector status by CSS
+#     caput("XF:11BM-CT{Det-P300K:2}Camserver:Restart", 1)
+#     #set exposure time twice to garantee the EPICS connection
+#     # pilatus300.cam.acquire_time.set(1.3)
+#     time.sleep(5)
+#     # pilatus300.cam.acquire_time.set(1.7)
+#     caput("XF:11BM-ES{Det-P300K:2}:SysReset", 1)
+
+# Restart Pilatus300 after pumping the vacuum below 0.5 mbar.
+
+power_button = EpicsSignal(
+    "XF:11BMB-VA{Chm:Det}UserButton", name="waxs_power_button"
+)
+camserver_restart = EpicsSignal(
+    "XF:11BM-CT{Det-P300K:2}Camserver:Restart", name="waxs_camserver_restart"
+)
+system_reset = EpicsSignal(
+    "XF:11BM-ES{Det-P300K:2}:SysReset", name="waxs_system_reset"
+)
+
+def _startWAXS_plan(wait_time):
+    detector_state = pilatus300.cam.detector_state
+    power_button = EpicsSignal(
+        "XF:11BMB-VA{Chm:Det}UserButton", name="waxs_power_button"
+    )
+    camserver_restart = EpicsSignal(
+        "XF:11BM-CT{Det-P300K:2}Camserver:Restart", name="waxs_camserver_restart"
+    )
+    system_reset = EpicsSignal(
+        "XF:11BM-ES{Det-P300K:2}:SysReset", name="waxs_system_reset"
+    )
+
+    yield from bps.abs_set(power_button, 1, wait=True)
+    yield from bps.sleep(wait_time)
+    yield from bps.abs_set(camserver_restart, 1, wait=True)
+    yield from bps.sleep(5)
+    yield from bps.abs_set(system_reset, 1, wait=True)
+    yield from bps.sleep(5)
+
+    while True:
+        if not detector_state.connected:
+            yield from bps.sleep(0.5)
+            continue
+
+        state = yield from bps.rd(detector_state)
+        if state == 0:
+            break
+        yield from bps.sleep(0.5)
+    print("Pilatus300 detector is ready.")
+
+
+def startWAXS(wait_time=10):
+    """Power and restart Pilatus300, then wait for it to become idle."""
+    RE(_startWAXS_plan(wait_time))
 
 
         
