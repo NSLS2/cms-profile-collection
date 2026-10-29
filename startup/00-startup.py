@@ -10,9 +10,11 @@ except KeyError:
 
 from epics import caget, caput
 
-from tiled.client import from_profile
+from bluesky.callbacks.buffer import BufferingWrapper
+from bluesky_tiled_plugins import TiledInserter
 from databroker import Broker
 from redis_json_dict import RedisJSONDict
+from tiled.client import from_profile
 
 from IPython import get_ipython
 from IPython.terminal.prompts import Prompts, Token
@@ -32,29 +34,16 @@ ip = get_ipython()
 ip.prompts = ProposalIDPrompt(ip)
 
 # Configure a Tiled writing client
-tiled_writing_client = from_profile("nsls2", api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_CMS"])["cms"]["raw"]
-tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
+tiled_writing_client_raw = from_profile("nsls2", api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_CMS"])["cms"]["raw"]
+tiled_writing_client_raw.context.http_client.headers['tiled-qos'] = 'acquisition'
+TILED_BACKUP_ROOT = "/nsls2/data/cms/shared/config/bluesky/tiled_backup"
 
-class TiledInserter:
-
-    name = 'cms'
-    def insert(self, name, doc):
-        ATTEMPTS = 20
-        error = None
-        for _ in range(ATTEMPTS):
-            try:
-                tiled_writing_client.post_document(name, doc)
-            except Exception as exc:
-                print("Document saving failure:", repr(exc))
-                error = exc
-            else:
-                break
-            time.sleep(2)
-        else:
-            # Out of attempts
-            raise error
-
-tiled_inserter = TiledInserter()
+tiled_inserter = TiledInserter(
+    tiled_writing_client_raw,
+    "cms",
+    backup_directory=f"{TILED_BACKUP_ROOT}/raw",
+)
+tiled_inserter = BufferingWrapper(tiled_inserter)  # in-process queue
 
 nslsii.configure_base(get_ipython().user_ns,
                       tiled_inserter,
