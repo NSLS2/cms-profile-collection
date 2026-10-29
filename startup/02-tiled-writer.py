@@ -11,41 +11,6 @@ from tiled.client import from_uri
 MIMETYPE_LOOKUP = {
         "AD_TIFF": "multipart/related;type=image/tiff",
         "HDF5": "application/x-hdf5",
-
-        # "A1_HDF5": "application/x-hdf5",  # esm_patches:A1SoftFileHandler(HDF5DatasetSliceHandler)
-        # "AD_CBF": "multipart/related;type=image/tiff",
-        # "AD_EIGER_MX": "application/x-hdf5",
-        # "AD_EIGER2": "application/x-hdf5",
-        # "AD_JPEG": "multipart/related;type=image/jpeg",
-        # "AD_HDF5": "application/x-hdf5",
-        # "AD_HDF5_GERM": "application/x-hdf5",
-        # "AD_HDF5_SWMR_STREAM": "application/x-hdf5",
-        # "AD_HDF5_SWMR_SLICE": "application/x-hdf5",
-        # "AD_HDF5_SWMR": "application/x-hdf5",
-        # "AD_HDF5_TS": "application/x-hdf5",    # area_detector_handlers.handlers:AreaDetectorHDF5TimestampHandler
-        # "AD_HDF5_DET_TS": "application/x-hdf5",    # csx_transforms.AreaDetectorHDF5NDArrayTimeStampHandler
-        # "APB": "application/x-pizzabox-binary",     # columns: timestamp, i0, it, ir, iff, aux1, aux2, aux3, aux4.   iss_patches:APBBinFileHandler
-        # "APB_TRIGGER": "application/x-pizzabox-binary",  # columns: timestamp, transition,   iss_patches:APBTriggerFileHandler
-        # "DEX_HDF5": "application/x-hdf5",
-        # "EIGER2_STREAM": "application/x-hdf5",
-        # "MERLIN_FLY_STREAM_V2": "application/x-hdf5",
-        # "MERLIN_HDF5_BULK": "application/x-hdf5",
-        # "PANDA": "application/x-hdf5",
-        # "PIL100k_HDF5": "application/x-hdf5",      # iss_patches:ISSPilatusHDF5Handler
-        # "PILATUS_HDF5": "application/x-hdf5",
-        # "ROI_HDF5_FLY": "application/x-hdf5",
-        # "ROI_HDF51_FLY": "application/x-hdf5",
-        # "SIS_HDF51_FLY_STREAM_V1": "application/x-hdf5",
-        # "TPX_HDF5": "application/x-hdf5",
-        # "NPY_SEQ": "multipart/related;type=application/x-npy",
-        # "SIS_HDF51": "application/x-hdf5",
-        # "SPECS_HDF5_SINGLE_DATAFRAME": "application/x-hdf5",    # IOS
-        # "XIA_XMAP_HDF5": "application/x-hdf5;type=xia-xmap",
-        # "XSP3": "application/x-hdf5",        # iss_patches:ISSXspress3HDF5Handler, area_detector_handlers.handlers:Xspress3HDF5Handler
-        # "XSP3_BULK": "application/x-hdf5",
-        # "XSP3_FLY": "application/x-hdf5",
-        # "XSP3_STEP": "application/x-hdf5",   # databroker.assets.handlers:Xspress3HDF5Handler, area_detector_handlers.handlers:Xspress3HDF5Handler
-        # "XSP3X": "application/x-hdf5",
     }
 
 
@@ -63,8 +28,7 @@ def patch_resource(doc):
 
     if doc.get("spec") in ["AD_TIFF"]:
         kwargs["template"] = "/" + kwargs["template"].lstrip("/")    # Ensure leading slash
-        # kwargs["join_method"] = "stack"
-        kwargs["join_method"] = "concat"
+        kwargs["join_method"] = "concat"  # "stack"
 
     return doc
 
@@ -94,8 +58,10 @@ def patch_descriptor(doc):
 # Initialize the Tiled client and the TiledWriter
 api_key = os.environ.get("TILED_BLUESKY_WRITING_API_KEY_CMS")
 tiled_writing_client_sql = from_uri("https://tiled.nsls2.bnl.gov", api_key=api_key)['cms/migration']
+tiled_writing_client_sql.context.http_client.headers['tiled-qos'] = 'acquisition'
+
 tw = TiledWriter(client = tiled_writing_client_sql,
-                 backup_directory="/tmp/tiled_backup",   # NOTE: Pick a suitable backup directory
+                 backup_directory=f"{TILED_BACKUP_ROOT}/sql",
                  patches = {"descriptor": patch_descriptor,
                             "resource": patch_resource},
                  spec_to_mimetype = MIMETYPE_LOOKUP,
