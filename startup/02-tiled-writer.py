@@ -61,7 +61,7 @@ tiled_writing_client_sql = from_uri("https://tiled.nsls2.bnl.gov", api_key=api_k
 tiled_writing_client_sql.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 tw = TiledWriter(client = tiled_writing_client_sql,
-                 backup_directory=f"{TILED_BACKUP_ROOT}/sql",   # NOTE: Pick a suitable backup directory
+                 backup_directory=f"{TILED_BACKUP_ROOT}/sql",
                  patches = {"descriptor": patch_descriptor,
                             "resource": patch_resource},
                  spec_to_mimetype = MIMETYPE_LOOKUP,
