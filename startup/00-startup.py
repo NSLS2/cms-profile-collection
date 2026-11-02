@@ -10,8 +10,7 @@ except KeyError:
 
 from epics import caget, caput
 
-from bluesky.callbacks.buffer import BufferingWrapper
-from bluesky_tiled_plugins import TiledInserter
+from bluesky_tiled_plugins import BufferingWrapper, TiledInserter
 from databroker import Broker
 from redis_json_dict import RedisJSONDict
 from tiled.client import from_profile
