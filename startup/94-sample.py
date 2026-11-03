@@ -5718,8 +5718,7 @@ def handlefiles_names():
     filenames = []
     uid = -1
     # Tiled's view may lag behind Bluesky because the documents are buffered;
-    # flush the buffer so the just-acquired run (and its resource documents)
-    # is fully visible.
+    # flush the buffer so the just-acquired run (and its resource documents) is fully visible.
     flush_tiled_buffers()
     h = db[uid]
 
