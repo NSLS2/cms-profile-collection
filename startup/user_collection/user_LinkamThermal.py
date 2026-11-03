@@ -511,7 +511,7 @@ class Sample(SampleTSAXS):
         """Output the tranmission of direct beam"""
         # Tiled's view may lag behind Bluesky because the documents are buffered;
         # flush the buffer so the just-acquired run is fully visible.
-        tiled_inserter.flush()
+        flush_tiled_buffers()
         h = db[-1]
         dtable = h.table()
 

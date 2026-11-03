@@ -73,3 +73,15 @@ tw = BufferingWrapper(tw)
 # Subscribe the TiledWriter
 RE.md["tiled_access_tags"] = (RE.md["data_session"],)
 # RE.subscribe(tw)
+
+
+def flush_tiled_buffers():
+    """Block until all buffered documents have been written to Tiled.
+
+    Call this before reading a just-acquired run back from Tiled: documents
+    are buffered, so Tiled's view may lag behind Bluesky. Flushes every
+    writer buffer, so it stays correct regardless of which writers are
+    subscribed to RE.
+    """
+    tiled_inserter.flush()
+    tw.flush()

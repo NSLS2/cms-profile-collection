@@ -1046,7 +1046,7 @@ def fit_scan(
     # check save_flg and save the scan data thru databroker
     if save_flg == 1:
         # flush the buffer so the run is fully visible in Tiled before reading
-        tiled_inserter.flush()
+        flush_tiled_buffers()
         header = db[uid]
         dtable = header.table()
         filename = "{}/{}".format(RE.md["experiment_alias_directory"], header.start["scan_id"])

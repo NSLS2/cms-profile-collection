@@ -74,7 +74,7 @@ class SampleTSAXS_Generic(Sample_Generic):
         """Output the tranmission of direct beam"""
         # Tiled's view may lag behind Bluesky because the documents are buffered;
         # flush the buffer so the just-acquired run is fully visible.
-        tiled_inserter.flush()
+        flush_tiled_buffers()
         h = db[-1]
         dtable = h.table()
 
@@ -207,7 +207,7 @@ class SampleGISAXS_Generic(Sample_Generic):
         """Output the tranmission of direct beam"""
         # Tiled's view may lag behind Bluesky because the documents are buffered;
         # flush the buffer so the just-acquired run is fully visible.
-        tiled_inserter.flush()
+        flush_tiled_buffers()
         h = db[-1]
         dtable = h.table()
 
@@ -1189,7 +1189,7 @@ class SampleXR_WAXS(SampleGISAXS_Generic):
         # create a data file to save the XRR data
         if output_file is None:
             # flush the document buffer so the just-acquired run is the latest in Tiled
-            tiled_inserter.flush()
+            flush_tiled_buffers()
             header = db[-1]
             # XR_FILENAME='{}/data/{}.csv'.format(os.path.dirname(__file__) , header.get('start').get('scan_id')+1)
             # XR_FILENAME='{}/data/{}.csv'.format(header.start['experiment_alias_directory'], header.get('start').get('scan_id')+1)
@@ -1294,7 +1294,7 @@ class SampleXR_WAXS(SampleGISAXS_Generic):
                             )
 
                             # flush the document buffer so the just-acquired run is the latest in Tiled
-                            tiled_inserter.flush()
+                            flush_tiled_buffers()
                             theta_temp_output = {'a_scanID':db[-1].start["scan_id"]+1, "b_theta": theta }
                             theta_temp_output_data = pds.DataFrame([theta_temp_output])
 
@@ -1378,7 +1378,7 @@ class SampleXR_WAXS(SampleGISAXS_Generic):
 
         # Tiled's view may lag behind Bluesky because the documents are buffered;
         # flush the buffer so the just-acquired run is fully visible.
-        tiled_inserter.flush()
+        flush_tiled_buffers()
         h = db[-1]
         dtable = h.table()
 
@@ -1669,7 +1669,7 @@ class SampleXR_WAXS(SampleGISAXS_Generic):
         # create a data file to save the XRR data
         if output_file is None:
             # flush the document buffer so the just-acquired run is the latest in Tiled
-            tiled_inserter.flush()
+            flush_tiled_buffers()
             header = db[-1]
             # XR_FILENAME='{}/data/{}.csv'.format(os.path.dirname(__file__) , header.get('start').get('scan_id')+1)
             # XR_FILENAME='{}/data/{}.csv'.format(header.start['experiment_alias_directory'], header.get('start').get('scan_id')+1)
