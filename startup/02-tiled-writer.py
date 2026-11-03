@@ -75,7 +75,7 @@ RE.md["tiled_access_tags"] = (RE.md["data_session"],)
 # RE.subscribe(tw)
 
 
-def flush_tiled_buffers():
+def flush_tiled():
     """Block until all buffered documents have been written to Tiled.
 
     Call this before reading a just-acquired run back from Tiled: documents

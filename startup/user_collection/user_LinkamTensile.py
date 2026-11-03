@@ -751,9 +751,7 @@ class Sample(SampleTSAXS):
 
     def transmission_data_output(self, slot_pos):
         """Output the tranmission of direct beam"""
-        # Tiled's view may lag behind Bluesky because the documents are buffered;
-        # flush the buffer so the just-acquired run is fully visible.
-        flush_tiled_buffers()
+        flush_tiled()  # wait for buffered documents to reach Tiled
         h = db[-1]
         dtable = h.table()
 
