@@ -4785,6 +4785,7 @@ class Sample_Generic(CoordinateSystem):
     #updated on April 1st, 2025
     def transmission_data_output(self):
         """Output the tranmission of direct beam"""
+        flush_tiled()  # wait for buffered documents to reach Tiled
         h = db[-1]
         dtable = h.table()
 
@@ -5714,6 +5715,7 @@ def handlefiles_names():
     # burst mode
     filenames = []
     uid = -1
+    flush_tiled()  # wait for buffered documents to reach Tiled
     h = db[uid]
 
     for ii in range(h.start['measure_series_num_frames']):

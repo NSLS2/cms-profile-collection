@@ -751,6 +751,7 @@ class Sample(SampleTSAXS):
 
     def transmission_data_output(self, slot_pos):
         """Output the tranmission of direct beam"""
+        flush_tiled()  # wait for buffered documents to reach Tiled
         h = db[-1]
         dtable = h.table()
 

@@ -4,6 +4,7 @@ from bluesky.plans import bps
 
 def pil_test():
     uid = RE(count([pilatus2M]))
+    flush_tiled()  # wait for buffered documents to reach Tiled
     h = db[uid[0]]
     # print(uid)
     print(h.start)

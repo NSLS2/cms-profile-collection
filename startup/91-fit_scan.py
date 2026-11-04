@@ -1030,7 +1030,9 @@ def fit_scan(
     # Perform the scan
 
     bec.disable_plots()
-    RE(scan(list(detectors), motor, start, stop, num, per_step=per_step, md=md), subs)
+    # take the uid directly from RE's return value: Tiled's view may lag behind
+    # Bluesky because the documents are buffered, so do not use `db[-1]` here.
+    uid, = RE(scan(list(detectors), motor, start, stop, num, per_step=per_step, md=md), subs)
     bec.enable_plots()
     # RE(scan(list(detectors), motor, start, stop, num, per_step=per_step, md=md), [liveplot, livefit, livefitplot])
     # RE(scan(list(detectors), motor, start, stop, num, per_step=per_step, md=md), [livefit])
@@ -1043,7 +1045,8 @@ def fit_scan(
 
     # check save_flg and save the scan data thru databroker
     if save_flg == 1:
-        header = db[-1]
+        flush_tiled()  # wait for buffered documents to reach Tiled
+        header = db[uid]
         dtable = header.table()
         filename = "{}/{}".format(RE.md["experiment_alias_directory"], header.start["scan_id"])
         dtable.to_csv(filename)
